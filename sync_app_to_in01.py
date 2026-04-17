@@ -4,6 +4,7 @@ Removes the remote app folder first, then copies the local folder.
 """
 
 import os
+import shlex
 import subprocess
 import sys
 import tarfile
@@ -15,8 +16,12 @@ from pathlib import Path
 LOCAL_PATH = os.getenv("TIMING_LOCAL_APP_PATH", str(Path(__file__).resolve().parent))
 REMOTE_USER = "trankiet"
 REMOTE_HOST = "in01"  # Short hostname for SSH
-REMOTE_BASE_PATH = "/remote/in01home14/trankiet/projects/signara-platform"
-REMOTE_APP_PATH = f"{REMOTE_BASE_PATH}/app"
+REMOTE_BASE_PATH = "/remote/in01home14/trankiet/projects/"
+REMOTE_APP_PATH = f"{REMOTE_BASE_PATH}/signara-platform"
+REMOTE_PRESERVE_DIRS = [
+    "code-server-4.106.2-linux-amd64",
+    "venv",
+]
 
 # Files/folders to exclude from copying
 EXCLUDE_PATTERNS = [
@@ -78,6 +83,19 @@ def run_command(cmd: list[str], description: str) -> bool:
         return False
 
 
+def build_remote_cleanup_command() -> str:
+    """Remove remote app contents while preserving selected directories."""
+    protected_args = " ".join(
+        f"! -name {shlex.quote(directory_name)}" for directory_name in REMOTE_PRESERVE_DIRS
+    )
+    quoted_remote_app_path = shlex.quote(REMOTE_APP_PATH)
+    return (
+        f"if [ -d {quoted_remote_app_path} ]; then "
+        f"find {quoted_remote_app_path} -mindepth 1 -maxdepth 1 {protected_args} -exec rm -rf {{}} +; "
+        f"else mkdir -p {quoted_remote_app_path}; fi"
+    )
+
+
 def main():
     """Main function to sync folder to remote server."""
     print("\n" + "="*60)
@@ -93,17 +111,17 @@ def main():
         print(f"[ERROR] Local path does not exist: {LOCAL_PATH}", file=sys.stderr)
         return 1
     
-    # Step 1: Remove existing remote app folder
-    print("\n[Step 1/2] Removing existing remote app folder...")
+    # Step 1: Remove existing remote app contents, but preserve selected directories
+    print("\n[Step 1/2] Cleaning remote app folder while preserving selected directories...")
     ssh_remove_cmd = [
         "ssh",
         f"{REMOTE_USER}@{REMOTE_HOST}",
-        f"rm -rf {REMOTE_APP_PATH}"
+        build_remote_cleanup_command()
     ]
     
-    if not run_command(ssh_remove_cmd, "Remove remote app folder"):
-        print("\n[WARNING] Failed to remove remote folder (it may not exist)")
-        # Continue anyway - folder might not exist
+    if not run_command(ssh_remove_cmd, "Clean remote app folder"):
+        print("\n[WARNING] Failed to clean remote folder")
+        # Continue anyway - extraction may still succeed if the directory is usable
     
     # Step 2: Copy local folder to remote using tar over SSH
     print("\n[Step 2/2] Copying local app folder to remote server...")
