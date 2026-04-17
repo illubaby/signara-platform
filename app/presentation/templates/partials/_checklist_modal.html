@@ -1,0 +1,36 @@
+{# Checklist Modal Partial Template #}
+<dialog id="checklistModal" class="modal">
+    <div class="modal-box w-11/12 max-w-5xl h-5/6 flex flex-col">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg">Project Checklist</h3>
+            <div class="flex gap-2">
+                <button id="checklistEditBtn" class="btn btn-sm btn-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                    Edit
+                </button>
+                <button id="checklistSaveBtn" class="btn btn-sm btn-primary hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z" />
+                    </svg>
+                    Save
+                </button>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+                </form>
+            </div>
+        </div>
+        
+        <div id="checklistLoading" class="flex-1 flex items-center justify-center hidden">
+            <span class="loading loading-spinner loading-lg"></span>
+        </div>
+        
+        <div id="checklistError" class="alert alert-error hidden"></div>
+        
+        <div id="checklistContent" class="flex-1 overflow-y-auto hidden"></div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>

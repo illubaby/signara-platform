@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% from 'components/page_header.html' import page_header %}
+{% from 'components/page_container.html' import page_container %}
+{% from 'components/execution_output.html' import execution_output %}
+
+{% block title %}Project Status | TimeCraft Platform{% endblock %}
+
+{% block content %}
+{% call page_container() %}
+  <div class="mb-2">
+    {{ page_header('Project Status', 'View project status overview with all release tracking information.') }}
+  </div>
+  <!-- Action Buttons placed under header -->
+  <div class="flex justify-between items-center gap-2 mb-4">
+    <div class="flex gap-2">
+      <button id="refreshButton" class="btn btn-secondary">
+        <span class="loading loading-spinner hidden"></span>
+        Refresh
+      </button>
+      <button id="editToggleButton" class="btn btn-outline">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+        </svg>
+        Edit
+      </button>
+      <button id="addCellButton" class="btn btn-primary hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        Add Cell
+      </button>
+      <button id="getPicButton" class="btn btn-primary hidden">
+        Get PIC
+      </button>
+    </div>
+    <span id="genReportButtonWrapper" class="inline-block" title="Available only when SiS and NT progress are both 100%">
+      <button id="genReportButton" class="btn btn-accent">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
+        </svg>
+        Gen Report
+      </button>
+    </span>
+  </div>
+  <!-- Configuration Settings Panel -->
+  <div class="mb-4">
+    {% include 'project_status/_config_settings_panel.html' %}
+  </div>
+  <!-- Tabs Navigation -->
+  <div role="tablist" class="tabs tabs-bordered mb-4">
+    <a role="tab" class="tab tab-active" id="sisTab" data-tab="sis">SiS Cells <span id="sisCount" class="badge badge-sm ml-2 rounded-lg">0</span></a>
+    <a role="tab" class="tab" id="ntTab" data-tab="nt">NT Cells <span id="ntCount" class="badge badge-sm ml-2 rounded-lg">0</span></a>
+  </div>
+
+
+
+  <!-- SiS Cells Table -->
+  <div id="sisTableContainer" class="overflow-x-auto shadow rounded-lg bg-base-100 glass-panel-card text-base">
+    <div class="overflow-x-auto overflow-y-auto" style="max-height: 1000px;">
+      <table class="table table-pin-rows table-pin-cols w-full rounded-lg text-base">
+        <thead id="sisTableHead" style="position: sticky; top: 0; z-index: 10; background-color: var(--fallback-b1, oklch(var(--b1)));">
+          <tr>
+            <th>Loading...</th>
+          </tr>
+        </thead>
+        <tbody id="sisTableBody">
+          <tr>
+            <td colspan="18" class="text-center">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- NT Cells Table -->
+  <div id="ntTableContainer" class="overflow-x-auto shadow rounded-lg bg-base-100 glass-panel-card hidden text-base">
+    <div class="overflow-x-auto overflow-y-auto" style="max-height: 1000px;">
+      <table class="table table-pin-rows table-pin-cols w-full rounded-lg text-base">
+        <thead id="ntTableHead" style="position: sticky; top: 0; z-index: 10; background-color: var(--fallback-b1, oklch(var(--b1)));">
+          <tr>
+            <th>Loading...</th>
+          </tr>
+        </thead>
+        <tbody id="ntTableBody">
+          <tr>
+            <td colspan="18" class="text-center">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="text-xs opacity-70 mt-2 flex flex-col gap-1">
+    <div class="flex gap-3">
+      <span class="font-semibold">PVT Status:</span>
+      <span><span class="badge badge-success badge-xs mr-1"></span>Passed</span>
+      <span><span class="badge badge-error badge-xs mr-1"></span>Failed</span>
+      <span><span class="badge badge-warning badge-xs mr-1"></span>In Progress</span>
+      <span><span class="badge badge-ghost badge-xs mr-1"></span>Not Started</span>
+    </div>
+  </div>
+{% endcall %}
+
+<!-- Add Cell Modal -->
+<dialog id="addCellModal" class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">Add New Cell</h3>
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    </form>
+    <div class="form-control gap-2">
+      <div>
+        <label class="label"><span class="label-text">Cell Name (ckt_macros) *</span></label>
+        <input type="text" id="newCellName" class="input input-bordered w-full" placeholder="e.g., my_cell" required />
+      </div>
+      <div>
+        <label class="label"><span class="label-text">Tool *</span></label>
+        <select id="newCellTool" class="select select-bordered w-full">
+          <option value="sis">SiS</option>
+          <option value="nt">NT</option>
+        </select>
+      </div>
+      <div>
+        <label class="label"><span class="label-text">PIC</span></label>
+        <input type="text" id="newCellPic" class="input input-bordered w-full" placeholder="Optional" />
+      </div>
+    </div>
+    <div class="modal-action">
+      <button id="confirmAddCell" class="btn btn-primary">Add Cell</button>
+      <form method="dialog">
+        <button class="btn">Cancel</button>
+      </form>
+    </div>
+  </div>
+</dialog>
+
+<!-- Gen Report Execution Modal -->
+<dialog id="genReportModal" class="modal">
+  <div class="modal-box max-w-5xl w-full">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    </form>
+    <h3 class="font-bold text-lg mb-4">Gen Report Execution</h3>
+    {{ execution_output(container_id='genReportExecution') }}
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<script src="/static/js/shared/websocket_output_stream.js"></script>
+<script src="/static/js/shared/execution_stream_factory.js"></script>
+<script src="{{ url_for('static', path='/js/project_status/hide_cell.js') }}"></script>
+<script src="{{ url_for('static', path='/js/project_status/gen_report.js') }}"></script>
+<script src="{{ url_for('static', path='/project_status.js') }}"></script>
+{% endblock %}

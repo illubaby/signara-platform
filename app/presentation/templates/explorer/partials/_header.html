@@ -1,0 +1,26 @@
+{# Explorer Header Partial: mode selector + control buttons #}
+<div class="flex items-center gap-3 flex-wrap justify-between explorer-header" id="explorerHeader">
+  <h3 class="text-lg font-semibold m-0">File Explorer <span class="text-xs opacity-60 font-normal ml-2">(Right-click for options)</span></h3>
+  <div class="flex items-center gap-2">
+  <div class="flex items-center gap-1 max-width-440">
+      <select id="explorerMode" class="select select-xs select-bordered">
+        <option value="project" selected>Project Timing Root</option>
+        <option value="global">Global Root</option>
+      </select>
+  <input id="globalRootInput" type="text" placeholder="Absolute path e.g. C:\\Users\\trankiet" class="input input-xs input-bordered font-mono text-xs is-hidden" style="flex:1;" />
+  <button id="setGlobalRootBtn" class="btn btn-xs btn-outline is-hidden">Set Root</button>
+    </div>
+    <button id="collapseAllBtn" class="btn btn-sm btn-outline" title="Collapse all expanded folders in tree">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+      </svg>
+      Collapse All
+    </button>
+    <button id="refreshBtn" class="btn btn-sm btn-primary" title="Reload file tree from server and refresh current file">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+      </svg>
+      Refresh
+    </button>
+  </div>
+</div>

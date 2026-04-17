@@ -1,0 +1,1 @@
+"""Special Check domain layer."""

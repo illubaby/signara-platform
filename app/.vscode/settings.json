@@ -1,0 +1,18 @@
+{
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.defaultInterpreterPath": "C:\\Users\\trankiet\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    // Ensure parent folder (which contains the package 'app') is on analysis path when opening workspace inside 'app'
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/.."
+    ],
+    // Provide runtime PYTHONPATH via .env for debugger and terminal in VS Code
+    "python.envFile": "${workspaceFolder}/.env",
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "terminal.integrated.env.windows": {
+        "PATH": "C:\\Users\\trankiet\\AppData\\Local\\Programs\\Python\\Python311;C:\\Users\\trankiet\\AppData\\Local\\Programs\\Python\\Python311\\Scripts;${env:PATH}"
+    }
+}

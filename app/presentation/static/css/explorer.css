@@ -1,0 +1,61 @@
+/* Explorer Page Styles extracted from explorer.html inline <style>
+   Keep page-specific styles here. Global reusable styles should migrate to a shared stylesheet later. */
+.tree-item { user-select: none; transition: background-color 0.15s ease; overflow: visible; white-space: nowrap; }
+.tree-item:active { transform: scale(0.98); }
+.tree-item span.text-xs { white-space: nowrap; display: inline-block; }
+.chevron { transition: transform 0.2s ease; flex-shrink: 0; }
+.tree-children { transition: max-height 0.3s ease; }
+.tree-folder, .tree-file { position: relative; overflow: visible; white-space: nowrap; }
+
+/* Pulse animation for highlighting opened folder */
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.02); opacity: 0.9; } }
+
+/* Path display with tooltip */
+#editorFullPath { position: relative; cursor: help; direction: rtl; text-align: left; }
+#editorFullPath:hover::after { content: attr(title); position: absolute; bottom: 100%; left: 0; background: rgba(0,0,0,0.9); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 11px; white-space: nowrap; z-index: 1000; margin-bottom: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+[data-theme="dark"] #editorFullPath:hover::after, [data-theme="night"] #editorFullPath:hover::after { background: rgba(255,255,255,0.95); color: #1f2937; }
+
+/* Normal flow layout matching other pages */
+.explorer-grid { display: flex; gap: 0; min-width: 0; max-width: 100%; width: 100%; overflow: hidden; position: relative; box-sizing: border-box; }
+@media (max-width: 768px) { .explorer-grid { flex-direction: column; } }
+
+/* Resizable panels */
+.resizable-panel { min-width: 200px; flex-shrink: 0; box-sizing: border-box; }
+.resize-handle { width: 8px; cursor: col-resize; background: transparent; position: relative; flex-shrink: 0; }
+.resize-handle::before { content: ''; position: absolute; top: 0; left: -4px; right: -4px; bottom: 0; }
+@media (max-width: 768px) { .resize-handle { display: none; } }
+
+.explorer-tree-wrapper { display: flex; flex-direction: column; height: calc(100vh - 280px); min-height: 400px; min-width: 0; overflow: hidden; flex: 0 0 auto; box-sizing: border-box; }
+.explorer-editor-wrapper { display: flex; flex-direction: column; height: calc(100vh - 280px); min-height: 400px; min-width: 0; max-width: 100%; overflow: hidden; flex: 1; margin-left: 0.75rem; box-sizing: border-box; }
+#explorerTree { flex: 1; overflow-y: auto; overflow-x: auto; }
+#fileEditorMonaco { flex: 1; overflow: hidden; width: 100%; max-width: 100%; }
+
+/* Context Menu Styles */
+.context-menu { position: fixed; background: var(--fallback-b1,oklch(var(--b1))); border: 1px solid var(--fallback-bc,oklch(var(--bc)/0.2)); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; min-width: 200px; padding: 4px 0; display: none; }
+.context-menu.show { display: block; }
+.context-menu-item { padding: 8px 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; transition: background-color 0.15s ease; }
+.context-menu-item:hover { background: var(--fallback-b2,oklch(var(--b2))); }
+.context-menu-item.disabled { opacity: 0.5; cursor: not-allowed; }
+.context-menu-item.disabled:hover { background: transparent; }
+.context-menu-divider { height: 1px; background: var(--fallback-bc,oklch(var(--bc)/0.2)); margin: 4px 0; }
+.context-menu-icon { width: 16px; height: 16px; flex-shrink: 0; }
+[data-theme="dark"] .context-menu, [data-theme="night"] .context-menu { box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+
+/* ---------------- Utility Classes (Phase 4 Refactor) ---------------- */
+.is-hidden { display: none !important; }
+.editor-bounds { width: 100%; max-width: 100%; }
+.max-width-440 { max-width: 440px; }
+.visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0 0 0 0) !important; white-space: nowrap !important; border: 0 !important; }
+
+/* Context menu state class rename candidate (future): .context-menu--visible */
+
+/* Panel semantic helpers */
+.panel { display: flex; flex-direction: column; box-sizing: border-box; }
+.panel--tree { height: calc(100vh - 280px); min-height: 400px; }
+.panel--editor { height: calc(100vh - 280px); min-height: 400px; }
+
+/* Compare bar styling hook (future extension) */
+#compareStatusBar.compare-active .badge { animation: pulse 1.2s ease-in-out infinite; }
+
+/* Header refinement hook */
+.explorer-header { gap: 0.75rem; }

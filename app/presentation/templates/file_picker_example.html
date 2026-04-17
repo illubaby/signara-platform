@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}File Picker - Simple Example{% endblock %}
+
+{% block content %}
+<div class="container max-w-4xl mx-auto p-6">
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">File/Folder Picker - Simple Integration Example</h2>
+            
+            <div class="divider">Example 1: Basic Usage</div>
+            
+            <!-- Example: Simple button to open picker -->
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">Select a file or folder:</span>
+                </label>
+                <div class="input-group">
+                    <input type="text" id="selectedPath1" placeholder="No file selected" 
+                           class="input input-bordered flex-1" readonly/>
+                    <button onclick="openPicker1()" class="btn btn-primary">Browse</button>
+                </div>
+            </div>
+
+            <div class="divider">Example 2: With Validation</div>
+
+            <!-- Example: File picker with type indicator -->
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">Select configuration file:</span>
+                </label>
+                <div class="input-group">
+                    <input type="text" id="selectedPath2" placeholder="No file selected" 
+                           class="input input-bordered flex-1" readonly/>
+                    <span id="pathType2" class="badge badge-ghost">—</span>
+                    <button onclick="openPicker2()" class="btn btn-primary">Browse</button>
+                </div>
+            </div>
+
+            <div class="divider">Example 3: Directory Only</div>
+
+            <!-- Example: Directory picker -->
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">Select output directory:</span>
+                </label>
+                <div class="input-group">
+                    <input type="text" id="selectedPath3" placeholder="No directory selected" 
+                           class="input input-bordered flex-1" readonly/>
+                    <button onclick="openPicker3()" class="btn btn-primary">Browse</button>
+                </div>
+            </div>
+
+            <div class="divider">Code Examples</div>
+
+            <div class="mockup-code">
+                <pre><code>// Example 1: Basic usage
+function openPicker1() {
+    FilePicker.open((path, isDirectory) => {
+        document.getElementById('selectedPath1').value = path;
+    });
+}
+
+// Example 2: With type indicator
+function openPicker2() {
+    FilePicker.open((path, isDirectory) => {
+        document.getElementById('selectedPath2').value = path;
+        const badge = document.getElementById('pathType2');
+        badge.textContent = isDirectory ? 'Directory' : 'File';
+        badge.className = isDirectory ? 'badge badge-success' : 'badge badge-primary';
+    });
+}
+
+// Example 3: Directory only (custom validation)
+function openPicker3() {
+    FilePicker.open((path, isDirectory) => {
+        if (!isDirectory) {
+            alert('Please select a directory, not a file!');
+            return;
+        }
+        document.getElementById('selectedPath3').value = path;
+    });
+}</code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/file_picker.js"></script>
+<script>
+// Example 1: Basic usage
+function openPicker1() {
+    FilePicker.open((path, isDirectory) => {
+        document.getElementById('selectedPath1').value = path;
+    });
+}
+
+// Example 2: With type indicator
+function openPicker2() {
+    FilePicker.open((path, isDirectory) => {
+        document.getElementById('selectedPath2').value = path;
+        const badge = document.getElementById('pathType2');
+        badge.textContent = isDirectory ? 'Directory' : 'File';
+        badge.className = isDirectory ? 'badge badge-success' : 'badge badge-primary';
+    });
+}
+
+// Example 3: Directory only (custom validation)
+function openPicker3() {
+    FilePicker.open((path, isDirectory) => {
+        if (!isDirectory) {
+            alert('Please select a directory, not a file!');
+            return;
+        }
+        document.getElementById('selectedPath3').value = path;
+    });
+}
+</script>
+{% endblock %}

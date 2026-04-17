@@ -1,0 +1,155 @@
+[
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkBusOrder",
+    "Descriptions": "Check the order of bus.( attribure should be downto:true).",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   Bus type is not defined. Aborting",
+    "Analysis": "Bus type is not defined"
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkDelayTableValues",
+    "Descriptions": "Checks that any value in the delay timing tables in .lib files does not exceed the predefined limit 10000 ps, currently",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   Found delay values greater than the maximum allowed 10000 ps",
+    "Analysis": "Found delay values greater than the maximum allowed 10000 ps"
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkDerate",
+    "Descriptions": "NA",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   Derate Lists do not match between PVTs",
+    "Analysis": "Derate lists do not match between PVTs, consistency check failed"
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkDuplicateAttributes",
+    "Descriptions": "Checks if no any library level attribute is defined twice in .lib files",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   Attribute 'timing_type' is duplicated in 'timing : related_pin ZCalAnaClk timing_type rising_edge timing_type rising_edge' in 'pin : ZCalCompOut'",
+    "Analysis": "Attribute 'timing_type' is duplicated"
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkMaxCap",
+    "Descriptions": "Check the max_capacitance attribute less than the largest cap in the lookup table.",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "Unknown",
+    "Detail error": "",
+    "Analysis": ""
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkOperatingConditions",
+    "Descriptions": "Checks consistency between the  operating conditions inside a .lib file vs  the lib filenames",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   Default operating conditions 'ffpg0p825v0c' does not match an element of operatingConditionList",
+    "Analysis": "Default operating conditions do not match with operating conditions in lib"
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkPt",
+    "Descriptions": "Check the lib run LC and gen .db file.If LC gen.",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "",
+    "Detail error": "",
+    "Analysis": ""
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkSetupHoldSum",
+    "Descriptions": "Verifies that the corresponding pairs of values in setup and hold constraint arc tables sum up to a positive number",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   The sum of setup and corresponding hold constraint table values is not positive: setup value:-88.154000 hold value:-4.447000 sum:-92.601",
+    "Analysis": ""
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkTiming",
+    "Descriptions": "Check trend of arc delay with  if no arcs violation greater than the threshold of 10ps.",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "Unknown",
+    "Detail error": "",
+    "Analysis": ""
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "createVerilogTestBench",
+    "Descriptions": "NA",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "",
+    "Detail error": "",
+    "Analysis": ""
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkSetupHoldTablesMatch",
+    "Descriptions": "Verifies that setup and hold tables are defined in matching pairs.",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   No corresponding hold_falling arc was found for the following constraint arc: dwc_uciephy_clkgt=>pin:EN=>timing_arc_attributes:related_pin CK timing_type setup_falling when !SE sdf_cond {ENABLE_NOT_SE === 1'b1}",
+    "Analysis": "Missing hold_falling arc for constraint arc: Pin:EN ==> Related_pin:CK, timing_type: setup_falling"
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkMasterPinIsClock",
+    "Descriptions": "Verify that pins defined as master_pin in generated_clock group have 'clock : true' attribute",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "WAIVED",
+    "Detail error": "",
+    "Analysis": "Generated_clock group will be removed by PostEdit ==> Auto PASS"
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkRiseVsFallTableValues",
+    "Descriptions": "Verify that corresponding value pairs in rise and fall timing tables do not deviate from each other by more than a set margin (default is 30ps)",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   The difference between cell_rise and cell_fall table values exceeds the maximum allowed margin of 30 ps: |1083.589996 - 85.860001| == 997.729995 --> 997.729995 ps",
+    "Analysis": "Cell rise - cell fall > 30ps"
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkAlwaysOnCells",
+    "Descriptions": "Verify that pins defined as master_pin in generated_clock group have 'clock : true' attribute",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   No pg_pin with pg_type 'backup_power' was found for 'always_on' cell 'dwc_ucie2phy_rxcktrk_s_ew'.",
+    "Analysis": "Missing pg_pin with 'backup_power' for 'always_on' cell"
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkTransitionAndDelayTablesMatch",
+    "Descriptions": "Matching NLDM transition tables (rise_transition, fall_transition) must be defined when delay tables (cell_rise, cell_fall) are defined.",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   NLDM transition tables vs NLDM delay tables check for dwc_uciephy_cmpana_16M_3Mx_2Fx_7Dx_2Hx_2Iz_LB_ffpg0p825v0c aborted",
+    "Analysis": ""
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkRiseFallConstraintTables",
+    "Descriptions": "Verify that every setup and hold timing arc in a given Liberty library has both rise_constraint and fall_constraint tables defined.",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   Missing 'fall_constraint' table in the following hold_rising timing arc dwc_uciephy_clkgt=>pin:SE=>timing_arc_attributes:related_pin CK timing_type hold_rising when !EN sdf_cond {ENABLE_NOT_EN === 1'b1}",
+    "Analysis": "Missing 'fall_constraint' table for hold_rising timing arc: Pin:SE ==> Related_pin:CK, timing_type: hold_rising"
+  },
+  {
+    "QA Main Items": "hipreLibertyCheck",
+    "QA Subs Items": "checkPinIsAnalog",
+    "Descriptions": "Verify that the given analog pins have 'is_analog : true' attribute in liberty",
+    "Sheet": "hipreLibertyCheck",
+    "Status": "FAILED",
+    "Detail error": "Error:   The following pins specified as analog in the reference analog_pins list do not have \"is_analog : true\" attribute in the liberty: ",
+    "Analysis": "Missing attribute “is_analog” for the analog pin."
+  }
+]

@@ -1,0 +1,70 @@
+{# Project Status: Configuration Settings Panel #}
+<div class="collapse collapse-arrow bg-base-100 border border-base-300 shadow-lg rounded-lg glass-panel-card p-4" id="configSettingsPanel">
+  <input type="checkbox" id="configSettingsCollapse" />
+  <div class="collapse-title text-lg font-bold bg-primary text-primary-content rounded-t-lg glass-panel-card p-3">
+    ⚙️ Project Information & Configuration Settings
+  </div>
+  <div class="collapse-content bg-base-100 glass-panel-card">
+    <!-- Project Completion Progress & Reports (side by side) -->
+    <div class="mt-4 mb-4 grid grid-cols-2 gap-4">
+      <!-- Left: Progress Radials (SiS, NT) -->
+      <div class="p-3 bg-base-200 rounded-lg grid grid-cols-2 gap-6 items-center justify-center">
+        <div class="flex flex-col items-center gap-2">
+          <div class="radial-progress text-primary" style="--value:0; --size:9rem; --thickness:6px;" id="projectProgressSis" role="progressbar">0%</div>
+          <div class="text-xs opacity-70"><span class="font-semibold">SiS:</span> <span id="progressStatsSis">0/0 complete</span></div>
+        </div>
+        <div class="flex flex-col items-center gap-2">
+          <div class="radial-progress text-secondary" style="--value:0; --size:9rem; --thickness:6px;" id="projectProgressNt" role="progressbar">0%</div>
+          <div class="text-xs opacity-70"><span class="font-semibold">NT:</span> <span id="progressStatsNt">0/0 complete</span></div>
+        </div>
+        <!-- <div class="flex flex-col items-center gap-2">
+          <div class="radial-progress text-accent" style="--value:0; --size:9rem; --thickness:6px;" id="projectProgressInternal" role="progressbar">0%</div>
+          <div class="text-xs opacity-70"><span class="font-semibold">Internal:</span> <span id="progressStatsInternal">0/0 complete</span></div>
+        </div> -->
+      </div>
+      
+      <!-- Right: Project-level Reports -->
+      <div class="p-3 bg-base-200 rounded-lg">
+        <h3 class="font-semibold mb-2 text-base">Project-Level Reports</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium">Special Check:</span>
+            <span id="specialCheckStatus" class="badge badge-sm">-</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium">Package Compare:</span>
+            <span id="packageCompareStatus" class="badge badge-sm">-</span>
+          </div>
+        </div>
+        <div class="text-xs opacity-70 mt-2">
+          <div>Special Check: //wwcad/msip/projects/ucie/{project}/{subproject}/design/timing/docs/report/review/SpecialCheckReport.xlsx</div>
+          <div>Package Compare: //wwcad/msip/projects/ucie/{project}/{subproject}/design/timing/docs/report/review/PackageCompare_*.xlsx</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Configuration Settings -->
+    <div class="grid grid-cols-1 gap-3 pt-2">
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text font-semibold text-base">Final Lib Path</span>
+        </div>
+        <input type="text" id="finalLibPathInput" class="input input-md input-bordered font-mono text-sm w-full" placeholder="//wwcad/msip/projects/ucie/{project}/{subproject}/design/timing/release/internal/raw_lib/*" value="//wwcad/msip/projects/ucie/{project}/{subproject}/design/timing/release/internal/raw_lib/*" disabled>
+      </label>
+      
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text font-semibold text-base">Cutoff Date</span>
+          <span class="label-text-alt text-xs opacity-70">(YYYY-MM-DD)</span>
+        </div>
+        <input type="date" id="cutoffDateInput" class="input input-md input-bordered w-full" placeholder="YYYY-MM-DD" disabled>
+        <div class="label">
+          <span class="label-text-alt text-xs opacity-70">Files older than this date will be treated as missing. Leave empty to include all files.</span>
+        </div>
+      </label>
+    </div>
+    <div class="text-xs opacity-70 mt-2">
+      Paths are automatically configured based on selected project/subproject. Modify only if you need custom paths.
+    </div>
+  </div>
+</div>

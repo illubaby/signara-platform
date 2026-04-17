@@ -1,0 +1,9 @@
+{
+  "QA Main Items": "LCQA_lib_screener",
+  "QA Subs Items": "NA",
+  "Descriptions": "Report the reasonable values, if the value bigger than limitation it will be flag as error",
+  "Sheet": "LCQA_lib_screener",
+  "Status": "WARNING",
+  "Detail error": "Wait for a judgment ",
+  "Analysis": "The detailed error does not show. Need to go inside the sheet itself to review. \r\nMostly check for NEGATIVE delay or transition (which should not exist), check for OCV values if it is large in critical timing arcs (such as CLKTREE arcs, TX/RX arcs, MPCLKGEN arcs, which should have balance skew rise/fall delay, so OCV values must not be large)"
+}

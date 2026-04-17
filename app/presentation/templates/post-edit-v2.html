@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% from 'components/page_header.html' import page_header %}
+{% from 'components/layout_form.html' import render_form %}
+
+{% block title %}Post Edit V2{% endblock %}
+
+{% block content %}
+<div class="mx-auto px-4 py-8">
+    {{ page_header(title, page_id) }}
+
+    <div class="mt-8">
+        <!-- Post Edit Tabs -->
+        <div role="tablist" class="tabs tabs-bordered mb-4">
+            <input type="radio" name="postedit_tabs" class="tab" aria-label="Single Cell" checked="checked" />
+            <input type="radio" name="postedit_tabs" class="tab" aria-label="Multiple Cells" />
+        </div>
+
+        {{ render_form(fields=form_fields, hidden_fields=hidden_fields, container_class='card bg-base-100 shadow p-4 glass-panel-card', form_class='form-control w-full') }}
+    </div>
+</div>
+
+<script src="/static/js/shared/layout_form.js"></script>
+<script src="/static/js/post_edit_v2.js"></script>
+{% endblock %}

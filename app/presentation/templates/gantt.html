@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Global Project Status | TimeCraft Platform{% endblock %}
+
+{% block content %}
+<div class="w-full h-full">
+  <!-- Gantt Chart embedded from React build -->
+  <iframe 
+    src="/static/gantt/index.html" 
+    class="w-full h-screen border-0"
+    style="min-height: calc(100vh - 4rem);"
+    title="Global Project Status Gantt Chart">
+  </iframe>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Optional: Handle iframe messages if needed for deeper integration
+  window.addEventListener('message', (event) => {
+    // Handle messages from the React app if needed
+    console.log('[Gantt] Received message:', event.data);
+  });
+</script>
+{% endblock %}

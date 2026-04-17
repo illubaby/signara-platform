@@ -1,0 +1,1 @@
+OpenCode SDK là bộ thư viện cho JavaScript/TypeScript để bạn điều khiển OpenCode bằng code, thay vì chỉ gõ tay trong TUI/CLI. Nó là một client type-safe nói chuyện với OpenCode server qua HTTP / OpenAPI.

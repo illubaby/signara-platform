@@ -1,0 +1,83 @@
+[
+  {
+    "QA Main Items": "alphapincheck",
+    "QA Subs Items": "NA",
+    "Descriptions": "Checking for pin existence , pin direction,type, related_power,related_ground,bracket,area across all views.",
+    "Sheet": "alphapincheck",
+    "Status": "FAILED",
+    "Detail error": "-I- Checking across all views for PG pin existence ...\r\n-I- PG pin 'VSS'\r\n-I- missing in /remote/in01sgnfs00142/thaison/p4_ws/projects/ucie/h301-ucie3-s32-tsmc2p-075-ew/rel0.95_tc/design/timing/release/process/dwc_ucie3phy_clkgt1_s/lib_pg/dwc_ucie3phy_clkgt1_s_19M_1X_h_1Xb_v_1Xc_h_1Xd_v_1Ya_h_1Yb_v_6Y_hvhvhv_2Yy2Yx2R_SHP2MIM_tt0p75v25c_pg.lib\r\n-E- DIRTY!",
+    "Analysis": "Missing PG pin"
+  },
+  {
+    "QA Main Items": "alphapincheck",
+    "QA Subs Items": "NA",
+    "Descriptions": "Checking for pin existence , pin direction,type, related_power,related_ground,bracket,area across all views.",
+    "Sheet": "alphapincheck",
+    "Status": "FAILED",
+    "Detail error": "\t-W- Library name \"dwc_ucie3phy_clkgt1_s_19M_1X_h_1Xb_v_1Xc_h_1Xd_v_1Ya_h_1Yb_v_6Y_hvhvhv_2Yy2Yx2R_SHP2MIM_tt0p875v25c\" not correct in /remote/in01sgnfs00142/thaison/p4_ws/projects/ucie/h301-ucie3-s32-tsmc2p-075-ew/rel0.95_tc/design/timing/release/process/dwc_ucie3phy_clkgt1_s/lib_pg/dwc_ucie3phy_clkgt1_s_19M_1X_h_1Xb_v_1Xc_h_1Xd_v_1Ya_h_1Yb_v_6Y_hvhvhv_2Yy2Yx2R_SHP2MIM_tt0p75v25c_pg.lib\r\n-I- Expecting \"dwc_ucie3phy_clkgt1_s_19M_1X_h_1Xb_v_1Xc_h_1Xd_v_1Ya_h_1Yb_v_6Y_hvhvhv_2Yy2Yx2R_SHP2MIM_tt0p75v25c\"",
+    "Analysis": "Wrong liberty name"
+  },
+  {
+    "QA Main Items": "alphapincheck",
+    "QA Subs Items": "NA",
+    "Descriptions": "Checking for pin existence , pin direction,type, related_power,related_ground,bracket,area across all views.",
+    "Sheet": "alphapincheck",
+    "Status": "FAILED",
+    "Detail error": "-I- Checking across all views for pin existence ... \r\n-I- Pin soft_VDD \r\n-I-  missing in /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/lib/dwc_ucie2phy_tx16b_s_ns_15M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_5Y_vhvhv_2Yy2Z_SHDMIM_tt0p75v85c.lib \r\n-I- missing in /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/lib_pg/dwc_ucie2phy_tx16b_s_ns_15M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_5Y_vhvhv_2Yy2Z_SHDMIM_tt0p75v85c_pg.lib \r\n-E- DIRTY! ",
+    "Analysis": "Missing pin"
+  },
+  {
+    "QA Main Items": "alphapincheck",
+    "QA Subs Items": "NA",
+    "Descriptions": "Checking for pin existence , pin direction,type, related_power,related_ground,bracket,area across all views.",
+    "Sheet": "alphapincheck",
+    "Status": "FAILED",
+    "Detail error": "-I- Checking across all views for pin direction consistency... \r\n-I- Pin LbFxdDatIn[0]: \r\n /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/lib/dwc_ucie2phy_tx16b_s_ns_15M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_5Y_vhvhv_2Yy2Z_SHDMIM_tt0p75v85c.lib: output \r\n /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/lib_pg/dwc_ucie2phy_tx16b_s_ns_15M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_5Y_vhvhv_2Yy2Z_SHDMIM_tt0p75v85c_pg.lib: output \r\n /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/DepotRelease/lef/8M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_2Y_vh/dwc_ucie2phy_tx16b_s_ns.lef: input \r\n /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/DepotRelease/pininfo/dwc_ucie2phy_tx16b_s_ns.csv: input \r\n-E- DIRTY! ",
+    "Analysis": "Wrong pin direction compared to .csv and .lef"
+  },
+  {
+    "QA Main Items": "alphapincheck",
+    "QA Subs Items": "NA",
+    "Descriptions": "Checking for pin existence , pin direction,type, related_power,related_ground,bracket,area across all views.",
+    "Sheet": "alphapincheck",
+    "Status": "FAILED",
+    "Detail error": "-I- Checking across all views for related_power consistency... \r\n-I- Pin soft_VIO: \r\n \u0001/remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/lib_pg/dwc_ucie2phy_tx16b_s_ns_15M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_5Y_vhvhv_2Yy2Z_SHDMIM_tt0p75v85c_pg.lib: VDD \r\n \u0001/remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/DepotRelease/pininfo/dwc_ucie2phy_tx16b_s_ns.csv: VCCIO \r\n-E- DIRTY!",
+    "Analysis": "Wrong related_power_pin compared to .csv"
+  },
+  {
+    "QA Main Items": "alphapincheck",
+    "QA Subs Items": "NA",
+    "Descriptions": "Checking for pin existence , pin direction,type, related_power,related_ground,bracket,area across all views.",
+    "Sheet": "alphapincheck",
+    "Status": "FAILED",
+    "Detail error": "-I- Checking across all views for related_ground consistency... \r\n-I- Pin soft_VSS: \r\n /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/lib_pg/dwc_ucie2phy_tx16b_s_ns_15M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_5Y_vhvhv_2Yy2Z_SHDMIM_tt0p75v85c_pg.lib: \"VCCIO\" \r\n /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/DepotRelease/pininfo/dwc_ucie2phy_tx16b_s_ns.csv: \"VSS\" \r\n-E- DIRTY! ",
+    "Analysis": "Wrong related_ground_pin compared to .csv"
+  },
+  {
+    "QA Main Items": "alphapincheck",
+    "QA Subs Items": "NA",
+    "Descriptions": "Checking for pin existence , pin direction,type, related_power,related_ground,bracket,area across all views.",
+    "Sheet": "alphapincheck",
+    "Status": "FAILED",
+    "Detail error": "-I- Checking bracket consistency across all views;  All views must have consistent brackets \r\n-E- /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/lib/dwc_ucie2phy_tx16b_s_ns_15M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_5Y_vhvhv_2Yy2Z_SHDMIM_tt0p75v85c.lib: square \r\n /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/lib_pg/dwc_ucie2phy_tx16b_s_ns_15M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_5Y_vhvhv_2Yy2Z_SHDMIM_tt0p75v85c_pg.lib: mixed \r\n /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/DepotRelease/lef/8M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_2Y_vh/dwc_ucie2phy_tx16b_s_ns.lef: square \r\nDIRTY! ",
+    "Analysis": "Wrong bracket in bus compared to .lef"
+  },
+  {
+    "QA Main Items": "alphapincheck",
+    "QA Subs Items": "NA",
+    "Descriptions": "Checking for pin existence , pin direction,type, related_power,related_ground,bracket,area across all views.",
+    "Sheet": "alphapincheck",
+    "Status": "FAILED",
+    "Detail error": "-I- Checking across all views for pin existence ... \r\n-I- Pin TxCalP<0> \r\n-I- missing in /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/lib/dwc_ucie2phy_tx16b_s_ns_15M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_5Y_vhvhv_2Yy2Z_SHDMIM_tt0p75v85c.lib \r\n-I- missing in /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/DepotRelease/lef/8M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_2Y_vh/dwc_ucie2phy_tx16b_s_ns.lef \r\n-I- missing in /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/DepotRelease/pininfo/dwc_ucie2phy_tx16b_s_ns.csv ",
+    "Analysis": "Wrong pin compared to .lef and .csv"
+  },
+  {
+    "QA Main Items": "alphapincheck",
+    "QA Subs Items": "NA",
+    "Descriptions": "Checking for pin existence , pin direction,type, related_power,related_ground,bracket,area across all views.",
+    "Sheet": "alphapincheck",
+    "Status": "FAILED",
+    "Detail error": "-I- Checking across all views for type consistency... \r\n-I- Pin VCCAON: \r\n /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/lib_pg/dwc_ucie2phy_tx16b_s_ns_15M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_5Y_vhvhv_2Yy2Z_SHDMIM_tt0p75v85c_pg.lib: ground \r\n /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/DepotRelease/lef/8M_1X_h_1Xb_v_1Xe_h_1Ya_v_1Yb_h_2Y_vh/dwc_ucie2phy_tx16b_s_ns.lef: power \r\n /remote/in01sgnfs00142/mitran/p4_ws/projects/ucie/h213-ucie2-s16_ap-tsmc5aff-12-ns/rel1.00_cktpcs/design/timing/release/process/dwc_ucie2phy_tx16b_s_ns/DepotRelease/pininfo/dwc_ucie2phy_tx16b_s_ns.csv: power \r\n-E- DIRTY! ",
+    "Analysis": "Wrong pg_type attribute of the pg_pin"
+  }
+]

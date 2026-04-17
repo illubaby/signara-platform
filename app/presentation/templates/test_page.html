@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fibonacci - Test Page</title>
+  <link href="/static/css/tailwind-daisyui.css" rel="stylesheet" />
+</head>
+<body>
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-md space-y-4">
+      <div class="prose">
+        <h1>{{ message }}</h1>
+      </div>
+
+      <div class="card bg-base-200 shadow">
+        <div class="card-body">
+          <h2 class="card-title">First 5 Fibonacci numbers</h2>
+          <button
+            id="fib-toggle"
+            class="btn btn-primary btn-sm w-fit"
+            type="button"
+            aria-expanded="false"
+          >
+            Show Fibonacci
+          </button>
+
+          <ul id="fib-list" class="list-disc list-inside mt-3 hidden">
+            {% for n in fibonacci %}
+              <li>{{ n }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/static/test_page.js"></script>
+</body>
+</html>

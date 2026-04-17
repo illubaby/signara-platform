@@ -1,0 +1,52 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "disabled",
+  // Synopsys SIA model
+  // "model": "snpsaws/global.anthropic.claude-sonnet-4-6",
+  // "model": "snpsaws/global.anthropic.claude-opus-4-6-v1",
+  "model": "snpsazure/gpt-5.4",
+  // GHCopilot model
+  // "model": "github-copilot/gpt-5.4",
+  "default_agent": "build",
+  "permission": "allow",
+  "command": {
+    "hello-template": {
+      "description": "Simple template example",
+      "template": "Print exactly: Hello world"
+    }
+  },
+                                   
+  "agent": {
+    // DEFAULT AGENT
+    "build": {
+      "mode": "primary",
+      // "color": "#ff0000",
+      "description": "Signara is an AI co-worker agent that assists engineers with analog mixed-signal design tasks.",
+      // "temperature": 0.2 // Lower values make responses more focused and deterministic, while higher values increase creativity and variability.
+      // "steps":"10", // Control the maximum number of agentic iterations an agent can perform before being forced to respond with text only.
+      // "disable": true, // Disable this agent for now since it's not fully working yet
+      // "model": "anthropic/claude-haiku-4-20250514", // If you don’t specify a model, primary agents use the model globally configured while subagents will use the model of the primary agent that invoked the subagent.
+      // "hidden": true, // Hide a subagent from the @ autocomplete menu with hidden: true.
+      "prompt": "{file:./.opencode/prompts/build-live-trace.md}"
+    },
+    // CIRCUIT AGENTS   
+    "ucie-architect": {
+      "mode": "subagent",
+      "description": "UCIE Architect agent is responsible for answering UCIE architecture and design questions.",
+      "prompt": "{file:./.opencode/agents/circuit/ucie-architect.md}"
+    },                                                                             
+    // TIMING AGENTS  
+    "extract-timing-model": {
+      "mode":"subagent",
+      "description": "Extract timing model from the design and generate timing library.",
+      "prompt": "{file:./.opencode/agents/timing/extract-timing-model.md}"
+    }                                                                                                      
+    // "timing-qa-analyst": {
+    //   "mode":"subagent",
+    //   "description": "Timing QA Analyst subagent, reviews timing report and identifies potential issues.",
+    //   "prompt": "{file:./.opencode/agent/timing/timing-qa-analyst.md}"
+    // }
+
+  }
+
+}

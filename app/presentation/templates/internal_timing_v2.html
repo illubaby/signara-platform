@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% from 'components/page_header.html' import page_header %}
+{% from 'components/execution_output.html' import execution_output %}
+
+{% block title %}Internal Timing v2{% endblock %}
+
+{% block content %}
+<div class="mx-auto px-4 py-8">
+  {{ page_header(title, 'Simplified Internal Timing table with run modal') }}
+
+  <div class="card bg-base-100 shadow p-4 mt-6 glass-panel-card">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold">Cells</h2>
+      <button id="intV2RefreshBtn" class="btn btn-sm btn-outline">Reload</button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="table table-zebra w-full" id="intV2Table">
+        <thead>
+          <tr>
+            <th>Cell</th>
+            <th>Netlist</th>
+            <th>PVT Status</th>
+            <th>Action</th>
+            <th>Report</th>
+          </tr>
+        </thead>
+        <tbody id="intV2TableBody">
+          <tr>
+            <td colspan="5" class="text-center opacity-70 py-6">
+              Select project/subproject to load data
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<dialog id="intV2RunModal" class="modal">
+  <div class="modal-box max-w-xl">
+    <h3 class="font-bold text-lg">Run Internal Timing</h3>
+    <p class="text-sm opacity-70 mt-1">Cell: <span id="intV2RunModalCell" class="font-mono"></span></p>
+
+    <div class="mt-4 space-y-3">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="border rounded-lg p-3 bg-base-200">
+          <div class="text-xs font-semibold opacity-70 mb-2">Run Steps</div>
+          <label class="label cursor-pointer justify-start gap-3 py-1">
+            <input type="checkbox" id="intV2SetupStep" class="checkbox checkbox-sm" checked>
+            <span class="label-text">setupstep</span>
+          </label>
+          <label class="label cursor-pointer justify-start gap-3 py-1">
+            <input type="checkbox" id="intV2SimStep" class="checkbox checkbox-sm">
+            <span class="label-text">simstep</span>
+          </label>
+          <label class="label cursor-pointer justify-start gap-3 py-1">
+            <input type="checkbox" id="intV2ReportStep" class="checkbox checkbox-sm">
+            <span class="label-text">reportstep</span>
+          </label>
+        </div>
+        <div class="border rounded-lg p-3 bg-base-200">
+          <div class="text-xs font-semibold opacity-70 mb-2">Extra Options</div>
+          <label class="label cursor-pointer justify-start gap-3 py-1">
+            <input type="checkbox" id="intV2SkipJob" class="checkbox checkbox-sm">
+            <span class="label-text">skipjob</span>
+          </label>
+          <label class="label cursor-pointer justify-start gap-3 py-1">
+            <input type="checkbox" id="intV2NoSpice" class="checkbox checkbox-sm">
+            <span class="label-text">nospice</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="border rounded-lg p-3 bg-base-200">
+        <div class="label py-0">
+          <span class="label-text font-semibold">pvts</span>
+        </div>
+        <div class="mt-2 flex items-center gap-2">
+          <button type="button" id="intV2PvtsCheckAll" class="btn btn-xs btn-outline">Check All</button>
+          <button type="button" id="intV2PvtsUncheckAll" class="btn btn-xs btn-outline">Uncheck All</button>
+        </div>
+        <div id="intV2PvtsContainer" class="mt-2 border rounded bg-base-100 p-2 max-h-40 overflow-y-auto grid grid-cols-2 gap-1 text-[11px]">
+          <div class="col-span-2 opacity-70 text-center py-2">Run setupstep to create pvt_corners.lst</div>
+        </div>
+      </div>
+
+      <div>
+        <label class="label"><span class="label-text">Eco Name</span></label>
+        <input id="intV2EcoName" class="input input-bordered input-sm w-full" placeholder="NAME">
+      </div>
+
+      <div>
+        <label class="label"><span class="label-text">Eco Note</span></label>
+        <textarea id="intV2EcoNote" class="textarea textarea-bordered textarea-sm w-full" rows="3" placeholder="Description"></textarea>
+      </div>
+
+      <div class="bg-base-200 rounded p-3 hidden">
+        <div class="text-xs font-semibold mb-1">Preview</div>
+        <pre id="intV2CmdPreview" class="text-xs whitespace-pre-wrap break-all"></pre>
+      </div>
+    </div>
+
+    <div class="modal-action">
+      <button id="intV2RunNowBtn" class="btn btn-primary btn-sm">Run</button>
+      <button id="intV2CancelRunBtn" class="btn btn-sm">Cancel</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<dialog id="intV2Lib2TclModal" class="modal">
+  <div class="modal-box max-w-xl">
+    <h3 class="font-bold text-lg">lib2tcl</h3>
+    <p class="text-sm opacity-70 mt-1">Cell: <span id="intV2Lib2TclModalCell" class="font-mono"></span></p>
+
+    <div class="mt-4 space-y-3">
+      <div>
+        <label class="label"><span class="label-text">database</span></label>
+        <input id="intV2Lib2TclDatabase" class="input input-bordered input-sm w-full" placeholder="//depot/products/.../ckt/rel">
+      </div>
+
+      <div>
+        <label class="label"><span class="label-text">rel</span></label>
+        <input id="intV2Lib2TclRel" class="input input-bordered input-sm w-full" placeholder="rel0.95_tc">
+      </div>
+
+      <div>
+        <label class="label"><span class="label-text">targetcell</span></label>
+        <input id="intV2Lib2TclTargetCell" class="input input-bordered input-sm w-full" placeholder="dwc_ucie3phy_clkbranch6w_s">
+      </div>
+    </div>
+
+    <div class="modal-action">
+      <button id="intV2Lib2TclRunBtn" class="btn btn-primary btn-sm">Run lib2tcl</button>
+      <button id="intV2Lib2TclCancelBtn" class="btn btn-sm">Cancel</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<dialog id="intV2ExecutionModal" class="modal">
+  <div class="modal-box w-11/12 max-w-5xl max-h-[90vh] flex flex-col">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-lg">Execution Output</h3>
+      <button class="btn btn-sm btn-circle btn-ghost" onclick="document.getElementById('intV2ExecutionModal').close()">✕</button>
+    </div>
+    <div class="flex-1 overflow-y-auto">
+      {{ execution_output('intV2ExecutionOutputGroup') }}
+    </div>
+    <div class="mt-3 flex justify-end gap-2">
+      <button class="btn btn-sm" onclick="document.getElementById('intV2ExecutionModal').close()">Close</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<script src="/static/js/file_operations.js"></script>
+<script src="/static/js/shared/websocket_output_stream.js"></script>
+<script src="/static/js/shared/execution_stream_factory.js"></script>
+<script src="/static/js/internal_timing_v2/api.js"></script>
+<script src="/static/js/internal_timing_v2/run.js"></script>
+<script src="/static/js/internal_timing_v2/table.js"></script>
+<script src="/static/js/internal_timing_v2/index.js"></script>
+{% endblock %}

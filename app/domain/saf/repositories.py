@@ -1,0 +1,43 @@
+"""Port definitions (Protocols) for SAF module (Phase 1).
+
+Concrete implementations will live in infrastructure layer.
+"""
+from __future__ import annotations
+
+from typing import Protocol, List, Dict, Optional
+from .entities import Cell
+
+
+class SafCellRepository(Protocol):
+    """Filesystem-centric operations for local SAF cell discovery & metadata."""
+    def resolve_sis_root(self, project: str, subproject: str) -> Optional[str]: ...
+    def resolve_nt_root(self, project: str, subproject: str) -> Optional[str]: ...
+    def list_local_cells(self, project: str, subproject: str, cell_type: str) -> List[Cell]: ...
+    def collect_pvts(self, cell_dir: str) -> List[str]: ...
+    def collect_nt_pvts(self, project: str, subproject: str, cell: str) -> List[str]: ...
+    def netlist_version(self, project: str, subproject: str, cell: str, cell_type: str) -> str: ...
+    def final_lib_count(self, sis_root: str, cell: str) -> int: ...
+
+
+class SafPerforceRepository(Protocol):
+    """Perforce (P4V) interactions."""
+    def list_depot_cells(self, project: str, subproject: str) -> Dict[str, str]: ...  # cell_name -> type
+    def get_last_change(self, depot_path: str) -> Optional[str]: ...
+    def read_configure_pvt(self, project: str, subproject: str, internal: bool = False) -> List[str]: ...
+    def sync_inst_file(self, project: str, subproject: str, cell: str, cell_type: str) -> Dict: ...
+
+
+class SafJobExecutionService(Protocol):
+    def run_script(self, path: str, timeout: int) -> Dict: ...
+
+
+class PvtStatusRepository(Protocol):
+    def statuses_for_cell(self, cell_dir: str, is_nt: bool = False) -> Dict[str, str]: ...
+    def aggregate_counts(self, cell_dir: str, is_nt: bool = False) -> Dict[str, int]: ...
+
+__all__ = [
+    "SafCellRepository",
+    "SafPerforceRepository",
+    "SafJobExecutionService",
+    "PvtStatusRepository",
+]

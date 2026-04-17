@@ -1,0 +1,33 @@
+/* Timing QC Page Styles */
+
+/* Spinner Animation */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Row selection styling - matching SAF page */
+.cell-row {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cell-row.active { 
+  background-color: oklch(var(--p) / 0.2) !important;
+  border-left: 3px solid oklch(var(--p));
+}
+
+.cell-row.active td:first-child::before {
+  content: '✓ ';
+  color: oklch(var(--p));
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+/* Tab active styling - matching row selection behavior */
+.tab.tab-active {
+  background-color: oklch(var(--p) / 0.2) !important;
+  color: inherit !important;
+  border-color: transparent !important;
+  border-left: 3px solid oklch(var(--p)) !important;
+}

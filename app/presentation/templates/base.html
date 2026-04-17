@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="corporate">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}TimeCraft Platform{% endblock %}</title>
+  <meta name="color-scheme" content="dark light" />
+  <script>
+    // Auto-clear browser storage on server restart
+    (function() {
+      try {
+        fetch('/api/server-instance')
+          .then(res => res.json())
+          .then(data => {
+            const currentInstanceId = data.instance_id;
+            const savedInstanceId = localStorage.getItem('_server_instance_id');
+            
+            if (savedInstanceId && savedInstanceId !== currentInstanceId) {
+              // Server restarted - clear all storage
+              console.log('[Storage] Server restart detected, clearing browser storage...');
+              try {
+                localStorage.clear();
+                sessionStorage.clear();
+                // Clear cookies
+                document.cookie.split(";").forEach(function(c) {
+                  document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                });
+              } catch(e) {
+                console.warn('[Storage] Error clearing storage:', e);
+              }
+            }
+            
+            // Store new instance ID
+            localStorage.setItem('_server_instance_id', currentInstanceId);
+          })
+          .catch(err => console.warn('[Storage] Could not check server instance:', err));
+      } catch(_) {}
+    })();
+  </script>
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('theme');
+        if (saved) {
+          document.documentElement.setAttribute('data-theme', saved);
+        }
+      } catch (_) {}
+    })();
+  </script>
+  <!-- Offline production bundle (Tailwind + DaisyUI) built via Tailwind CLI -->
+  <!-- See docs/STYLING_OFFLINE_BUILD.md for build instructions -->
+  <link href="/static/css/tailwind-daisyui.css" rel="stylesheet" type="text/css" />
+  <!-- <link rel="icon" type="image/svg+xml" href="/theme/logo/platform-application-svgrepo-com.svg" /> -->
+  <link rel="icon" type="image/svg+xml" href="https://www.svgrepo.com/show/375537/apigee-api-platform.svg" />
+
+  <!-- Base styles for layout, sidebar, embedded mode, etc. -->
+  <link rel="stylesheet" href="/static/css/base.css" />
+  <!-- Xterm terminal styles (for floating console) -->
+  <link rel="stylesheet" href="/static/css/vendor/xterm.min.css" />
+
+  <script>
+    (function(){
+      try {
+        const qs = new URLSearchParams(window.location.search);
+        if(qs.get('embedded') === '1'){
+          document.documentElement.classList.add('embedded-mode');
+        }
+        // Optional: page background image from /theme folder via ?bg=<filename>
+        const bg = qs.get('bg');
+          function computeDefaultByTheme(){
+            const theme = document.documentElement.getAttribute('data-theme') || 'corporate';
+            const isDark = /dark|night|dracula|black|forest|synthwave|business/i.test(theme);
+            const isHome = (window.location.pathname === '/' || window.location.pathname === '/home');
+            // Start page custom backgrounds
+            if (isHome) {
+              // Dark → default1.jpg, Light → default.jpg
+              const prefer = isDark ? '1350765.jpeg' : 'lib.png';
+              return prefer;
+            }
+            // Other pages keep existing defaults
+            return isDark ? '#080606' : '#FBFAFA';
+          }
+          function applyBackground(){
+            const defaultValue = computeDefaultByTheme();
+            const selected = bg || defaultValue;
+            try {
+              var body = document.body;
+              // Check if selected is a color (starts with #) or an image file
+              if (selected.startsWith('#')) {
+                // Apply solid color background
+                body.style.backgroundImage = 'none';
+                body.style.backgroundColor = selected;
+              } else {
+                // Apply image background with graceful fallback if missing
+                const imageUrl = `/theme/${selected}`;
+                const testImg = new Image();
+                testImg.onload = function(){
+                  body.style.backgroundImage = `url('${imageUrl}')`;
+                  body.style.backgroundSize = 'cover';
+                  body.style.backgroundRepeat = 'no-repeat';
+                  body.style.backgroundPosition = 'center center';
+                  body.style.backgroundAttachment = 'fixed';
+                  body.style.backgroundColor = '';
+                };
+                testImg.onerror = function(){
+                  // Fallback to solid base color
+                  body.style.backgroundImage = 'none';
+                  body.style.backgroundColor = '#FBFAFA';
+                };
+                testImg.src = imageUrl;
+              }
+            } catch(_){ }
+          }
+          document.addEventListener('DOMContentLoaded', applyBackground);
+          // Update background immediately when theme changes (no reload needed)
+          try {
+            const observer = new MutationObserver((mutations)=>{
+              for(const m of mutations){
+                if(m.type==='attributes' && m.attributeName==='data-theme'){ applyBackground(); }
+              }
+            });
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+            // Also handle explicit theme toggle button click if present
+            document.getElementById('themeToggle')?.addEventListener('click', ()=> setTimeout(applyBackground, 0));
+          } catch(_){ }
+      } catch(_) {}
+    })();
+  </script>
+</head>
+<body class="min-h-screen bg-base-200 "> <!-- For PCB mode add class: pcb-circuit-bg -->
+  
+  <!-- Heroicons React bundle removed (we use inline SVGs already) -->
+  <!-- PCB Circuit Theme (commented out; add body class 'pcb-circuit-bg' below and uncomment to enable) -->
+  <!-- <link rel="stylesheet" href="/static/css/pcb_circuit.css" /> -->
+  <!-- Embedded (iframe) mode support: hide chrome when ?embedded=1 -->
+
+  <!-- Default (no special animated theme). Uncomment next line to restore geometric shapes. -->
+  <!-- <canvas id="animatedBg" class="animated-bg-canvas" aria-hidden="true"></canvas> -->
+  <!-- Top Header Bar -->
+  <!-- <div class="navbar shadow-md brand-gradient text-white h-16 sticky top-0 z-50"> -->
+  <div class="navbar shadow-md glass-panel text-base-content h-16 sticky top-0 z-50 glass-panel-card">
+    <div class="flex-1 items-center gap-4">
+      <button id="sidebarToggle" class="btn btn-ghost btn-sm" title="Toggle sidebar" aria-label="Toggle sidebar">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <a href="/" class="btn btn-ghost normal-case text-xl font-bold flex items-center gap-2">
+        <!-- <img src="https://www.svgrepo.com/show/421448/chip-intelligence-processor.svg" class="w-8 h-8" alt="TimeCraft Logo" /> -->
+        <img src="/theme/logo/synopsys.png" class="h-[30px] w-auto object-contain shrink-0" alt="TimeCraft Logo" />
+        <span>TimeCraft Platform</span>
+      </a>
+    </div>
+    <div class="flex-none flex items-center gap-3">
+
+      <span id="currentSelectionBadge" class="hidden md:inline-flex items-center gap-2"></span>
+      <!-- <button id="gradientToggle" class="btn btn-ghost btn-sm btn-circle" title="Toggle gradient animation">
+        <svg id="gradientIconPlay" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <svg id="gradientIconPause" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </button> -->
+      <div class="flex items-center" title="UCIE" aria-label="UCIE">
+        <img src="/theme/logo/ucie.png" class="h-[40px] w-auto object-contain" alt="UCIE Logo" />
+      </div>
+      <button id="themeToggle" class="btn btn-ghost btn-sm btn-circle" title="Toggle dark mode">
+        <svg id="themeIconLight" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+        <svg id="themeIconDark" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Layout with Sidebar -->
+  <div class="flex">
+    <!-- Left Sidebar (hidden by default, opened via toggle button) -->
+    <aside id="sidebar" class="sidebar bg-base-100 shadow-xl flex flex-col rounded-r-2xl">
+      
+      <div class="flex-1 overflow-y-auto py-4">
+        <!-- Primary Navigation -->
+        <div class="sidebar-group-title">Main</div>
+        <ul class="menu px-2" id="mainNav">
+          <li>
+            <a href="/choose-project" class="sidebar-item flex items-center gap-3 py-3 px-3">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+              </svg>
+              <span class="sidebar-item-text">Choose Project</span>
+            </a>
+          </li>
+          <li data-need-selection="1">
+            <a href="/project-status" class="sidebar-item flex items-center gap-3 py-3 px-3">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <span class="sidebar-item-text">Project Status</span>
+            </a>
+          </li>
+          <li>
+            <a href="/global-project-status" class="sidebar-item flex items-center gap-3 py-3 px-3">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+              <span class="sidebar-item-text">Global Project Status</span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- Timing Generation Section (Expandable) -->
+        <div class="sidebar-group-title">Workflow</div>
+        <div class="px-2 sidebar-group" data-need-selection="1">
+          <div class="sidebar-group-header flex items-center justify-between py-3 px-3" data-group="timing-generation">
+            <div class="flex items-center gap-3">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              <span class="sidebar-item-text">Timing Generation</span>
+            </div>
+            <svg class="chevron-icon w-4 h-4 sidebar-item-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+            <div class="sidebar-popup" data-popup="timing-generation">
+              <a href="/timing-saf">Timing SAF</a>
+              <a href="/post-edit-v2">Post-edit</a>
+              <a href="/timing-qc">TMQC</a>
+              <!-- <a href="/timing-qa-v2">TMQA</a> -->
+            </div>
+          </div>
+          <div class="sidebar-group-content pl-4" data-group-content="timing-generation">
+            <a href="/timing-saf" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>Timing SAF</span>
+            </a>
+            <a href="post-edit-v2" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>Post-edit</span>
+            </a>
+            <a href="/timing-qc" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>TMQC</span>
+            </a>
+            <!-- <a href="/timing-qa-v2" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>TMQA</span>
+            </a> -->
+          </div>
+        </div>
+
+        <!-- Internal Timing Section (Expandable) -->
+        <div class="px-2 sidebar-group" data-need-selection="1">
+          <div class="sidebar-group-header flex items-center justify-between py-3 px-3" data-group="internal-timing">
+            <div class="flex items-center gap-3">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+              <span class="sidebar-item-text">Internal Timing</span>
+            </div>
+            <svg class="chevron-icon w-4 h-4 sidebar-item-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+            <div class="sidebar-popup" data-popup="internal-timing">
+              <a href="/internal-timing-v2">Internal Timing</a>
+            </div>
+          </div>
+          <div class="sidebar-group-content pl-4" data-group-content="internal-timing">
+            <a href="/internal-timing-v2" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>Internal Timing</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Sanity Verification Section (Expandable) -->
+        <div class="px-2 sidebar-group" data-need-selection="1">
+          <div class="sidebar-group-header flex items-center justify-between py-3 px-3" data-group="sanity-verification">
+            <div class="flex items-center gap-3">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span class="sidebar-item-text">Sanity Verification</span>
+            </div>
+            <svg class="chevron-icon w-4 h-4 sidebar-item-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+            <div class="sidebar-popup" data-popup="sanity-verification">
+              <a href="/package-compare">Package Compare</a>
+              <a href="/special-check">Special Check</a>
+            </div>
+          </div>
+          <div class="sidebar-group-content pl-4" data-group-content="sanity-verification">
+            <a href="/package-compare" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>Package Compare</span>
+            </a>
+            <a href="/special-check" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>Special Check</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Project Release Section (Expandable) -->
+        <div class="px-2 sidebar-group" data-need-selection="1">
+          <div class="sidebar-group-header flex items-center justify-between py-3 px-3" data-group="project-release">
+            <div class="flex items-center gap-3">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+              <span class="sidebar-item-text">Project Release</span>
+            </div>
+            <svg class="chevron-icon w-4 h-4 sidebar-item-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+            <div class="sidebar-popup" data-popup="project-release">
+              <a href="/collect-depot">Collect Depot</a>
+              <a href="/timing-qa-v2">TMQA (Release)</a>
+              <a href="/project-release">Project Release</a>
+              <a href="/project-seeding">Seeding</a>
+              <a href="/project-wrap-up">Wrap-up</a>
+            </div>
+          </div>
+          <div class="sidebar-group-content pl-4" data-group-content="project-release">
+            <a href="/collect-depot" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>Collect Depot</span>
+            </a>
+            <a href="/timing-qa-v2" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>TMQA (Release)</span>
+            </a>
+            <a href="/project-release" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>Project Release</span>
+            </a>
+            <a href="/project-seeding" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>Seeding</span>
+            </a>
+            <a href="/project-wrap-up" class="sidebar-subitem flex items-center gap-3 py-2 px-3 text-sm">
+              <span>Wrap-up</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Additional Tools -->
+        <div class="sidebar-group-title">Tools</div>
+        <ul class="menu px-2">
+          <!-- Explorer feature disabled -->
+          <!-- <li data-need-selection="1">
+            <a href="/explorer" class="sidebar-item flex items-center gap-3 py-3 px-3">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 4 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+              </svg>
+              <span class="sidebar-item-text">Explorer</span>
+            </a>
+          </li> -->
+          <li>
+            <a href="/report-upload" class="sidebar-item flex items-center gap-3 py-3 px-3">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+              <span class="sidebar-item-text">Report Upload</span>
+            </a>
+          </li>
+          <li data-need-selection="1">
+            <a href="/terminal" class="sidebar-item flex items-center gap-3 py-3 px-3">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span class="sidebar-item-text">Terminal</span>
+            </a>
+          </li>
+          <li>
+            <button onclick="openLSFJobsModal()" class="sidebar-item flex items-center gap-3 py-3 px-3 w-full text-left">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+              </svg>
+              <span class="sidebar-item-text">LSF Jobs</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="openCreateJiraModal()" class="sidebar-item flex items-center gap-3 py-3 px-3 w-full text-left">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+              </svg>
+              <span class="sidebar-item-text">Create Jira</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="startCodeServer()" class="sidebar-item flex items-center gap-3 py-3 px-3 w-full text-left">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+              </svg>
+              <span class="sidebar-item-text">Code Server</span>
+            </button>
+          </li>
+          <li>
+            <button id="sidebarChatbotBtn" class="sidebar-item flex items-center gap-3 py-3 px-3 w-full text-left">
+              <svg class="sidebar-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+              </svg>
+              <span class="sidebar-item-text">Timing Lib Postedit Agent</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+      
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content flex-1 bg-base-200 min-h-screen transition-all duration-300">
+      <div class="w-full p-6" style="max-width: 100%; overflow-x: hidden; box-sizing: border-box;">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+  <!-- Footer -->
+  <footer class="footer footer-center p-4 bg-base-300 text-base-content border-t">
+    <aside class="flex items-center gap-4">
+      <p class="text-sm">© {{ 2025 }} TimeCraft Platform. Built with FastAPI + Jinja2 + Tailwind (DaisyUI).</p>
+      <span id="appVersionBadge" class="badge badge-ghost badge-sm font-mono cursor-pointer hover:badge-primary" 
+            title="Click to view changelog" onclick="window.showChangelog && window.showChangelog()">v...</span>
+    </aside>
+  </footer>
+
+  <!-- Floating Terminal Button -->
+  <div class="fixed bottom-6 right-6 z-50">
+    <button id="floatingTerminalBtn" class="btn btn-circle shadow-lg bg-white hover:bg-gray-100 text-black border border-gray-200" title="Toggle Terminal Console">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Bottom Console Panel -->
+  <div id="floatingConsole" class="fixed left-0 right-0 bottom-0 z-40 hidden" style="padding-bottom: 12px;">
+    <div class="glass-panel-card shadow-xl bg-base-100 rounded-b-2xl border-t border-b" style="height: 32vh;">
+      <!-- Resize handle -->
+      <div id="consoleResizeHandle" class="h-3 cursor-ns-resize bg-base-200 hover:bg-base-300"></div>
+      <!-- Header / Controls -->
+      <div class="flex items-center gap-2 px-4 py-2 text-xs border-b">
+        <button id="consoleReconnectBtn" class="btn btn-xs">Reconnect</button>
+        <button id="consoleClearBtn" class="btn btn-xs btn-outline">Clear</button>
+        <button id="consoleInsertLsfBtn" class="btn btn-xs btn-primary">Insert LSF Job Command</button>
+        <span id="consoleConnStatus" class="badge badge-warning">Disconnected</span>
+        <span class="ml-auto"></span>
+        <button id="consoleCloseBtn" class="btn btn-xs btn-ghost" title="Close terminal">
+          <img src="https://www.svgrepo.com/show/169548/close.svg" class="w-5 h-5" alt="Close">
+        </button>
+      </div>
+      <!-- Terminal viewport -->
+      <div id="floatingTerminal" class="bg-black" style="height: calc(32vh - 42px); box-sizing: border-box; padding: 8px 8px 12px 8px; border-radius: 0 0 0.5rem 0.5rem;"></div>
+    </div>
+  </div>
+
+  <!-- Version Check (checks P4 for updates, shows warning/block modal) -->
+  <script defer src="/static/js/version_check.js"></script>
+  <!-- Theme scripts removed to revert to normal. Uncomment one block below to enable a theme. -->
+  <!-- Geometric Shapes Background -->
+  <script defer src="/static/js/animated_bg.js"></script>
+  <!-- PCB Circuit Background (requires body class pcb-circuit-bg and pcb_circuit.css above) -->
+  <!-- <script defer src="/static/js/pcb_circuit.js"></script> -->
+  <script defer src="/static/app.js"></script>
+  <script defer src="/static/jira.js"></script>
+  <!-- Terminal libs for floating console -->
+  <script src="/static/js/vendor/xterm/xterm.min.js"></script>
+  <script src="/static/js/vendor/xterm/xterm-addon-fit.min.js"></script>
+  <!-- Speed Dial Menu -->
+  <script defer src="/static/js/shared/speed_dial.js"></script>
+  <!-- Terminal Console Panel -->
+  <script defer src="/static/js/shared/terminal_speed_dial.js"></script>
+  <!-- Checklist Modal -->
+  <script defer src="/static/js/checklist/state.js"></script>
+  <script defer src="/static/js/checklist/scope.js"></script>
+  <script defer src="/static/js/checklist/ui.js"></script>
+
+  <!-- LSF Jobs Modal -->
+  <dialog id="lsfJobsModal" class="modal">
+    <div class="modal-box w-11/12 max-w-7xl h-[90vh] glass-panel-card">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+        </svg>
+        LSF Running Jobs
+      </h3>
+      <div class="flex gap-2 mb-4">
+        <div class="flex items-center gap-2">
+          <label for="lsfUsername" class="text-sm">Username:</label>
+          <input type="text" id="lsfUsername" placeholder="current user" class="input input-sm input-bordered w-32" />
+        </div>
+        <button id="refreshJobsBtn" class="btn btn-sm btn-primary">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Refresh
+        </button>
+        <span id="jobsLastUpdate" class="text-xs self-center opacity-60"></span>
+      </div>
+      <div id="lsfJobsContent" class="bg-base-200 rounded-lg p-4 flex-1 overflow-auto" style="height: calc(90vh - 200px);">
+        <div class="flex justify-center items-center py-8">
+          <span class="loading loading-spinner loading-lg"></span>
+          <span class="ml-3">Loading jobs...</span>
+        </div>
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn">Close</button>
+        </form>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- Create Jira Modal -->
+  {% include 'components/jira_modal.html' %}
+  
+  <!-- Checklist Modal -->
+  {% include 'partials/_checklist_modal.html' %}
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+{% macro page_header(title, description='') %}
+{# Reusable page header component with consistent styling across all pages #}
+<div>
+  <h1 class="text-3xl font-bold mb-2">{{ title }}</h1>
+  {% if description %}
+  <p class="text-sm opacity-80">{{ description }}</p>
+  {% endif %}
+</div>
+{% endmacro %}

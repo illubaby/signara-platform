@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} | TimeCraft Platform{% endblock %}
+{% block content %}
+<div class="breadcrumbs text-sm mb-4">
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li>{{ title }}</li>
+  </ul>
+</div>
+<h1 class="text-3xl font-bold mb-4">{{ title }}</h1>
+<div class="alert alert-info mb-6">
+  <span>This is a placeholder for <strong>{{ title }}</strong>. Add specific UI components and logic.</span>
+</div>
+<div class="grid md:grid-cols-3 gap-6">
+  <div class="card bg-base-100 shadow glass-panel-card">
+    <div class="card-body">
+      <h2 class="card-title">Actions</h2>
+      <button class="btn btn-primary btn-sm">Primary Action</button>
+      <button class="btn btn-outline btn-sm">Secondary</button>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow md:col-span-2">
+    <div class="card-body">
+      <h2 class="card-title">Data / Output</h2>
+      <p class="text-sm opacity-70">Integrate tables, charts, logs here.</p>
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead><tr><th>#</th><th>Item</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for i in range(1,6) %}
+            <tr><td>{{ i }}</td><td>Row {{ i }}</td><td><span class="badge badge-success">OK</span></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

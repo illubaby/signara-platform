@@ -1,0 +1,9 @@
+{
+  "QA Main Items": "hipreLibPinFunctionCheck",
+  "QA Subs Items": "NA",
+  "Descriptions": "Checks that there is no function statement in the .lib files",
+  "Sheet": "hipreLibPinFunctionCheck",
+  "Status": "",
+  "Detail error": "",
+  "Analysis": ""
+}

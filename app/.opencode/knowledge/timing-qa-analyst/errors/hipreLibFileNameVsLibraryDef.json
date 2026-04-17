@@ -1,0 +1,9 @@
+{
+  "QA Main Items": "hipreLibFileNameVsLibraryDef",
+  "QA Subs Items": "NA",
+  "Descriptions": "Check file name and library definition inside the file.",
+  "Sheet": "hipreLibFileNameVsLibraryDef",
+  "Status": "FAILED",
+  "Detail error": "Error: There is a mismatch between dwc_uciephy_clkgt_16M_3Mx_2Fx_7Dx_2Hx_2Iz_LB_tt0p75v25c_pg.lib file name and library definition inside the file:",
+  "Analysis": "the lib name and the library defined inside lib is not the same"
+}

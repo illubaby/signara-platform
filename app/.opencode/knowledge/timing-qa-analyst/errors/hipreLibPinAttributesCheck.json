@@ -1,0 +1,9 @@
+{
+  "QA Main Items": "hipreLibPinAttributesCheck",
+  "QA Subs Items": "NA",
+  "Descriptions": "Check lib pin attributes : capacitance_check, max_transition_check, min_vs_max_capacitance_check,pin_cap_vs_timing_table_cap_index_min_check, pin_max_cap_vs_timing_table_cap_index_max_check",
+  "Sheet": "hipreLibPinAttributesCheck",
+  "Status": "",
+  "Detail error": "",
+  "Analysis": ""
+}

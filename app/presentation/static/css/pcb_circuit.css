@@ -1,0 +1,34 @@
+/* PCB Circuit Design Animated Background */
+/* Dark board with neon traces, vias, and signal flow */
+
+:root {
+  --pcb-bg: #0a0e14;        /* dark board */
+  --pcb-trace: #22d3ee;     /* cyan traces */
+  --pcb-bus: #60a5fa;       /* blue bus lines */
+  --pcb-via: #10b981;       /* green vias */
+  --pcb-accent: #a78bfa;    /* purple accent */
+}
+
+.pcb-circuit-bg {
+  position: relative;
+  background-color: var(--pcb-bg);
+  isolation: isolate;
+}
+
+.pcb-circuit-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(100vmax 100vmax at 20% 25%, rgba(34,211,238,0.10), transparent 70%),
+    radial-gradient(120vmax 120vmax at 80% 70%, rgba(167,139,250,0.10), transparent 70%),
+    var(--pcb-bg);
+}
+
+.pcb-circuit-bg > * { position: relative; z-index: 1; }
+
+/* Optional neon panel helpers */
+.pcb-neon-panel { border: 1px solid rgba(96,165,250,0.22); box-shadow: 0 0 10px rgba(34,211,238,0.25), inset 0 0 3px rgba(167,139,250,0.2); }
+.pcb-glossy { background: linear-gradient(to bottom, rgba(255,255,255,0.035), rgba(255,255,255,0.02)); backdrop-filter: blur(6px) saturate(1.02); }

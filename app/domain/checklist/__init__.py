@@ -1,0 +1,1 @@
+"""Checklist domain module."""

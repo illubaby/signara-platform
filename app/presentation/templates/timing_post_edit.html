@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% from 'components/page_header.html' import page_header %}
+{% from 'components/page_container.html' import page_container %}
+{% from 'components/file_browser_modal.html' import file_browser_modal %}
+{% from 'components/execution_output.html' import execution_output %}
+{% block title %}Timing Post-Edit{% endblock %}
+{% block content %}
+{% call page_container() %}
+  {{ page_header('Timing Post-Edit', 'Run post-edit flow for a selected cell. Choose a config file, aLibs path, optional reference, timing plan, reformat mode, reorder option, and PT version.') }}
+  <form id="postEditForm" class="flex flex-col gap-4">
+
+    <!-- Collapsible Configuration Section -->
+    <div class="collapse collapse-arrow bg-base-100 border border-base-300 shadow-lg rounded-lg">
+      <input type="checkbox" id="configCollapse" />
+      <div class="collapse-title text-base font-bold bg-primary text-primary-content rounded-t-lg">
+        ⚙️ Configuration
+      </div>
+      <div class="collapse-content bg-base-100">
+        <div class="flex flex-col gap-4 pt-2">
+          <div class="grid grid-cols-2 gap-4">
+            <label class="form-control col-span-2"><span class="label-text">Config File Path (cell.cfg)</span><div class="flex gap-2"><input name="configfile" id="configfileInput" class="input input-sm input-bordered w-full" placeholder="/path/to/.../design/timing/sis/cell/cell.cfg" required><button type="button" id="browseConfigBtn" class="btn btn-sm">Browse</button></div></label>
+            <label class="form-control col-span-2"><span class="label-text">aLibs Path</span><div class="flex gap-2"><input name="lib" id="libInput" class="input input-sm input-bordered w-full" placeholder="/path/to/libs" required><button type="button" id="browseLibBtn" class="btn btn-sm">Browse</button></div></label>
+            <label class="form-control col-span-2"><span class="label-text">Output Path</span><div class="flex gap-2"><input name="output" id="outputInput" class="input input-sm input-bordered w-full" placeholder="/<path_to_project>/<project>/<sub_project>/design/timing/release/Postedit_libs"><button type="button" id="browseOutputBtn" class="btn btn-sm">Browse</button></div></label>
+            <label class="form-control col-span-2"><span class="label-text">Reference Path</span><div class="flex gap-2"><input name="reference" id="referenceInput" class="input input-sm input-bordered w-full" placeholder="/path/to/reference"><button type="button" id="browseRefBtn" class="btn btn-sm">Browse</button></div></label>
+            <label class="form-control col-span-2"><span class="label-text">Timing Plan</span><input name="plan" id="planInput" class="input input-sm input-bordered w-full" placeholder="/path/to/uciephy_constraint.xlsx" required></label>
+            <div class="grid grid-cols-2 gap-4 col-span-2">
+              <label class="form-control"><span class="label-text">PT Version</span><input name="pt" id="ptInput" class="input input-sm input-bordered" value="2022.12-SP5" required></label>
+              <div class="flex flex-col justify-end text-[10px] opacity-70">Global configuration below applies to all cell runs.</div>
+            </div>
+            <div class="grid grid-cols-5 gap-4 col-span-2">
+              <label class="form-control"><span class="label-text">Copy Reference</span><input type="checkbox" id="copyReferenceInput" name="copyReference" class="checkbox checkbox-sm"></label>
+              <label class="form-control"><span class="label-text">Reformat Mode</span><select id="reformatSelect" name="reformat" class="select select-sm select-bordered"><option value="pt" selected>pt</option><option value="sis">sis</option></select></label>
+              <label class="form-control"><span class="label-text">Enable Reorder</span><input type="checkbox" id="reorderInput" name="reorder" class="checkbox checkbox-sm"></label>
+              <label class="form-control"><span class="label-text">Leakage</span><input type="checkbox" id="leakageInput" name="leakage" class="checkbox checkbox-sm"></label>
+              <label class="form-control"><span class="label-text">Update</span><input type="checkbox" id="updateInput" name="update" class="checkbox checkbox-sm"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cell Name Section with Cells Overview Button -->
+    <div class="flex flex-col gap-2">
+      <div class="flex items-start gap-2">
+        <label class="form-control w-full max-w-xs">
+          <div class="flex items-center gap-2">
+            <span class="label-text">Cell Name</span>
+            <button type="button" id="showCellsOverviewBtn" class="btn btn-xs btn-outline">📊 Cells</button>
+          </div>
+          <input id="cellManualInput" type="text" class="input input-sm input-bordered" placeholder="Enter cell name or click a cell in overview" />
+        </label>
+      </div>
+      <div class="text-[10px] opacity-70">Click the "Cells" button to view and select from available cells.</div>
+      <p class="text-[10px] opacity-70">Config file: <code id="computedCfgPath" class="font-mono"></code></p>
+    </div>
+
+    <!-- Config File Editor (Always Visible) -->
+    <div>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="font-semibold text-sm">Config File Editor</span>
+        <button type="button" id="saveConfigBtn" class="btn btn-xs btn-outline" disabled>Save</button>
+      </div>
+      <textarea id="configEditor" class="textarea textarea-bordered font-mono text-xs w-full h-72" placeholder="Config file content will load here..."></textarea>
+    </div>
+
+    <!-- Run Current Cell Button (Always Visible) -->
+    <div class="flex gap-2 items-center">
+      <button id="runBtn" type="submit" class="btn btn-sm btn-primary" disabled>Run Current Cell</button>
+    </div>
+
+    <!-- Execution Output (Always Visible) -->
+    <div>
+      {# Use legacy default container id 'executionOutputGroup' (no argument) #}
+      {{ execution_output() }}
+    </div>
+  </form>
+
+  <!-- Cells Overview Modal -->
+  <dialog id="cellsOverviewModal" class="modal">
+    <div class="modal-box max-w-2xl">
+      <h3 class="font-bold text-lg mb-4">📊 Cells Overview</h3>
+      <div class="overflow-auto max-h-[500px] border rounded">
+        <table class="table table-xs">
+          <thead class="sticky top-0 bg-base-200">
+            <tr>
+              <th>Sel</th>
+              <th>Cell</th>
+            </tr>
+          </thead>
+          <tbody id="metricsBody"><tr><td colspan="2" class="text-center italic opacity-60">No data</td></tr></tbody>
+        </table>
+      </div>
+      <p class="text-[10px] opacity-60 mt-2">Select a cell to edit config. Complete = >=16 updated libs.</p>
+      <div class="modal-action">
+        <button type="button" id="runSelectedBtn" class="btn btn-sm btn-accent" disabled>Run Selected</button>
+        <form method="dialog">
+          <button class="btn btn-sm">Close</button>
+        </form>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+{{ file_browser_modal() }}
+{% endcall %}
+
+{# Required shared streaming scripts (must load before timing_post_edit.js) #}
+<script src="{{ url_for('static', path='/js/shared/websocket_output_stream.js') }}"></script>
+<script src="{{ url_for('static', path='/js/shared/execution_stream_factory.js') }}"></script>
+<script src="{{ url_for('static', path='/js/timing_post_edit.js') }}"></script>
+
+{% endblock %}

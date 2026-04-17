@@ -1,0 +1,32 @@
+/* Timing SAF Page Styles (extracted from inline <style> in timing_saf.html)
+   Keep page-specific styles here. Consider moving shared utilities to a common stylesheet later. */
+
+/* Fade-in animation for details expansion */
+@keyframes fadeIn { from { opacity:0; transform: translateY(-2px);} to { opacity:1; transform: translateY(0);} }
+
+details.pvt-details summary { list-style: none; }
+details.pvt-details summary::-webkit-details-marker { display:none; }
+details.pvt-details[open] > div { animation: fadeIn 0.15s ease-in; }
+
+/* Active cell row highlight */
+.cell-row.active { 
+  background-color: oklch(var(--p) / 0.2) !important;
+  border-left: 3px solid oklch(var(--p));
+}
+.cell-row.active td:first-child::before {
+  content: '✓ ';
+  color: oklch(var(--p));
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+/* Hidden cell state */
+.cell-row.hidden { display: none; }
+
+/* Utility hooks (future consolidation) */
+#selectionPanel.hidden { display:none; }
+
+/* Responsive tweaks (future: refine breakpoints) */
+@media (max-width: 768px) {
+  #cellsTable { font-size: 11px; }
+}

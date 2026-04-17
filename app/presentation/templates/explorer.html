@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% from 'components/page_header.html' import page_header %}
+{% from 'components/page_container.html' import page_container %}
+{% block title %}Explorer | TimeCraft Platform{% endblock %}
+{% block content %}
+{# External stylesheet for explorer page #}
+<link rel="stylesheet" href="/static/css/explorer.css" />
+{% call page_container() %}
+  {{ page_header('File Explorer', 'Browse project files in {BASE}/{project}/{subproject}/design/timing directory.') }}
+
+  <!-- File Explorer Panel -->
+  <div class="flex flex-col gap-4">
+    {# Include extracted header partial #}
+    {% include 'explorer/partials/_header.html' %}
+    
+    <div class="explorer-grid">
+      {% include 'explorer/partials/_tree_panel.html' %}
+      <div class="resize-handle" id="resizeHandle"></div>
+  {% include 'explorer/partials/_editor_panel.html' %}
+  {% include 'explorer/partials/_compare_bar.html' %}
+    </div>
+  </div>
+</div>
+
+<!-- Context Menu -->
+{% include 'explorer/partials/_context_menu.html' %}
+
+<script src="/static/js/explorer/config.js"></script>
+<script src="/static/js/explorer/utils.js"></script>
+<script src="/static/js/explorer/state.js"></script>
+<script src="/static/js/explorer/resize.js"></script>
+<script src="/static/js/explorer/editor.js"></script>
+<script src="/static/js/explorer/tree.js"></script>
+<script src="/static/js/explorer/menu.js"></script>
+<script src="/static/js/explorer/files.js"></script>
+<script src="/static/js/explorer/compare.js"></script>
+<script src="/static/js/explorer/mode.js"></script>
+<script src="/static/js/explorer/bootstrap.js"></script>
+{% endcall %}
+{% endblock %}

@@ -1,0 +1,65 @@
+[
+  {
+    "QA Main Items": "hipreLibUPFAttributesCheck",
+    "QA Subs Items": "check_related_pg_pins",
+    "Descriptions": "NA",
+    "Sheet": "hipreLibUPFAttributesCheck",
+    "Status": "Fail",
+    "Detail error": "ERROR : Pin VDD, which is not found among power pins in cell dwc_uciephy_clkgt",
+    "Analysis": "Missing define VDD power pins as related_power_pin and VSS ground pins as related_ground_pin"
+  },
+  {
+    "QA Main Items": "hipreLibUPFAttributesCheck",
+    "QA Subs Items": "check_is_pad",
+    "Descriptions": "Checks if pad_cell attribute is included in a cell definition (if pad_cell: true,  at least one pin in the cell has is_pad attribute)",
+    "Sheet": "hipreLibUPFAttributesCheck",
+    "Status": "Fail",
+    "Detail error": "ERROR :  No pin within this cell has 'is_pad' attribute set to 'true'.",
+    "Analysis": "Missing attribute is_pad : true on any pin even though the library has pad_cell : true."
+  },
+  {
+    "QA Main Items": "hipreLibUPFAttributesCheck",
+    "QA Subs Items": "check_internal_power_pins_are_output",
+    "Descriptions": "NA",
+    "Sheet": "hipreLibUPFAttributesCheck",
+    "Status": "",
+    "Detail error": "",
+    "Analysis": ""
+  },
+  {
+    "QA Main Items": "hipreLibUPFAttributesCheck",
+    "QA Subs Items": "check_primary_power_ground",
+    "Descriptions": "Checks if each macro cell has at least one primary_power power pin and at least one primary_ground ground pin ",
+    "Sheet": "hipreLibUPFAttributesCheck",
+    "Status": "Fail",
+    "Detail error": "ERROR :  No power pin was found with pg_type attribute 'primary_power' for cell dwc_uciephy_clkgt",
+    "Analysis": ""
+  },
+  {
+    "QA Main Items": "hipreLibUPFAttributesCheck",
+    "QA Subs Items": "check_voltage_map",
+    "Descriptions": "Checks the availability of library-level voltage_map complex attributes for all power and ground pins in the library",
+    "Sheet": "hipreLibUPFAttributesCheck",
+    "Status": "Fail",
+    "Detail error": "ERROR : Voltage_map attributes for the following pg_pins are missing: ['VDD', 'VSS']",
+    "Analysis": "Missing voltage_map attributes for pg_pins: VDD, VSS"
+  },
+  {
+    "QA Main Items": "hipreLibUPFAttributesCheck",
+    "QA Subs Items": "check_pg_pins_have_no_dir",
+    "Descriptions": "If the power pin do not have direction.",
+    "Sheet": "hipreLibUPFAttributesCheck",
+    "Status": "Fail",
+    "Detail error": "ERROR :  The following pg pin(s) have 'direction' attribute in cell dwc_uciephy_clkgt",
+    "Analysis": "Define VDD, VSS direction = output"
+  },
+  {
+    "QA Main Items": "hipreLibUPFAttributesCheck",
+    "QA Subs Items": "check_power_down_func",
+    "Descriptions": "If the lib have attribute power_down_func.",
+    "Sheet": "hipreLibUPFAttributesCheck",
+    "Status": "WAIVED",
+    "Detail error": "Auto Waiver, UCIe design do not support power down function ",
+    "Analysis": ""
+  }
+]

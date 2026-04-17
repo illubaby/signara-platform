@@ -1,0 +1,11 @@
+{# Timing SAF: Embedded Post-Edit Page Modal #}
+<dialog id="postEditDialog" class="modal">
+  <div class="modal-box w-11/12 max-w-7xl h-[90vh] flex flex-col p-2">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    </form>
+    <h3 class="font-bold text-lg mb-2">Post-Edit <span id="postEditDialogCell" class="font-mono text-sm opacity-70"></span></h3>
+    <iframe id="postEditIframe" src="about:blank" class="flex-1 w-full border rounded" loading="lazy" title="Post-Edit"></iframe>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>

@@ -1,0 +1,9 @@
+{
+  "QA Main Items": "MaxtranMaxCap",
+  "QA Subs Items": "NA",
+  "Descriptions": "Report the values of max_transition and max_load, any abnormal number will be flag as error",
+  "Sheet": "MaxtranMaxCap",
+  "Status": "FAILED",
+  "Detail error": "120 | soft_VDD | 6324 | output | 100.0 | 1000.0 | -E- The difference between max tran and min tran bigger than 200ps ",
+  "Analysis": "Some max_cap or max_tran is having abnormal value at specified pin(s). Need to check if the lib has been postedited with -plan option for the pin(s)"
+}

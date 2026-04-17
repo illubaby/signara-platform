@@ -1,0 +1,9 @@
+{
+  "QA Main Items": "hipreLibPGPinCheck",
+  "QA Subs Items": "NA",
+  "Descriptions": "Check the power domain match with the power-named configuration file.",
+  "Sheet": "hipreLibPGPinCheck",
+  "Status": "FAILED",
+  "Detail error": "ERROR: VCCAON pin was declared as power pin in */*/*/*_pg.lib",
+  "Analysis": ""
+}

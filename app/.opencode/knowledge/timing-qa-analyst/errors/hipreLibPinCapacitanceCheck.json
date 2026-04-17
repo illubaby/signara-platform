@@ -1,0 +1,9 @@
+{
+  "QA Main Items": "hipreLibPinCapacitanceCheck",
+  "QA Subs Items": "NA",
+  "Descriptions": "Check all pins capacitance values. If all of them are acceptable ( > 0.0)",
+  "Sheet": "hipreLibPinCapacitanceCheck",
+  "Status": "FAILED",
+  "Detail error": "-E-   : log file : msip_hipreLibPinAttributesCheck_msip_hipreLibPinAttributesCheck.log ",
+  "Analysis": "Critical: if this chat fail, it means the max capacitance value is bigger than the range of timing table"
+}

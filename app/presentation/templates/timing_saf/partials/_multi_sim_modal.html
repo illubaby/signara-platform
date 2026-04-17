@@ -1,0 +1,29 @@
+{# Timing SAF: Simulation Multiple Cells Modal #}
+<dialog id="multiSimModal" class="modal">
+  <div class="modal-box w-11/12 max-w-3xl glass-panel-card">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    </form>
+    <h3 class="font-bold text-lg mb-3">Simulation Multiple Cells</h3>
+    <div class="space-y-3">
+      <div class="form-control">
+        <label class="label"><span class="label-text">SiS Directory</span></label>
+        <input id="multiSimSisDir" type="text" class="input input-bordered input-sm font-mono" placeholder="/path/to/sis_dir" />
+        <div class="text-[10px] opacity-70 mt-1">Used for <code>cd</code> before running <code>bin/python/runningman.py</code>.</div>
+      </div>
+      <div class="form-control">
+        <label class="label"><span class="label-text">Filter Cells</span></label>
+        <input id="multiSimSearch" type="text" class="input input-bordered input-sm" placeholder="Search cells..." />
+      </div>
+      <div id="multiSimCellsList" class="bg-base-200 rounded p-2 max-h-64 overflow-auto">
+        <!-- populated via JS -->
+      </div>
+    </div>
+    <div class="modal-action">
+      <button id="multiSimRunBtn" class="btn btn-primary">Run in Console</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>

@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+
+{% block title %}Test File Operations | TimeCraft Platform{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold mb-2">
+            <span class="gradient-text">Test File Operations</span>
+        </h1>
+        <p class="text-base-content/70">
+            Open files with their default applications (Excel, Word, PDF, etc.)
+        </p>
+    </div>
+
+    <!-- Test Card -->
+    <div class="card bg-base-200 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-2xl mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Open File Test
+            </h2>
+
+            <!-- Instructions -->
+            <div class="alert alert-info mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h3 class="font-bold">How to use:</h3>
+                    <div class="text-sm">
+                        <p>1. Enter the full path to any file on your computer</p>
+                        <p>2. Click "Open File" button</p>
+                        <p>3. The file will open in its default application</p>
+                        <p class="mt-2"><strong>Examples:</strong></p>
+                        <ul class="list-disc ml-6">
+                            <li><code>C:\Users\YourName\Documents\file.xlsx</code> → Opens in Excel</li>
+                            <li><code>C:\Users\YourName\Desktop\document.pdf</code> → Opens in PDF viewer</li>
+                            <li><code>/home/user/report.xlsx</code> → Linux path (if on Linux)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Form -->
+            <div class="form-control mb-6">
+                <label class="label">
+                    <span class="label-text font-semibold">File Path</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="filePathInput" 
+                    placeholder="Enter full path to file (e.g., C:\Users\YourName\Documents\file.xlsx)" 
+                    class="input input-bordered w-full" 
+                />
+                <label class="label">
+                    <span class="label-text-alt text-base-content/60">
+                        Enter absolute path or relative path from server location
+                    </span>
+                </label>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col md:flex-row gap-3">
+                <button 
+                    id="openFileBtn" 
+                    class="btn btn-primary flex-1"
+                    onclick="handleOpenFile()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Open On Server (legacy)
+                </button>
+                <button
+                    id="downloadFileBtn"
+                    class="btn btn-accent flex-1"
+                    onclick="handleDownloadFile()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v12a2 2 0 002 2h12M4 4h12a2 2 0 012 2v12M12 10v6m0 0l-3-3m3 3l3-3" />
+                    </svg>
+                    Download & Open Locally
+                </button>
+                <button 
+                    class="btn btn-ghost" 
+                    onclick="clearForm()">
+                    Clear
+                </button>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="hidden mt-4">
+                <div class="flex items-center gap-3">
+                    <span class="loading loading-spinner loading-md"></span>
+                    <span>Opening file...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Test Examples -->
+    <div class="card bg-base-200 shadow-xl mt-6">
+        <div class="card-body">
+            <h3 class="card-title text-xl mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Quick Test (Common Paths)
+            </h3>
+            <p class="text-sm text-base-content/70 mb-4">
+                Click on any example to auto-fill the path. Make sure the file exists at that location!
+            </p>
+            
+            <div class="space-y-2">
+                <button class="btn btn-sm btn-outline w-full justify-start" onclick="fillPath('C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span class="text-left flex-1">Windows hosts file</span>
+                    <code class="text-xs">C:\Windows\System32\drivers\etc\hosts</code>
+                </button>
+                
+                <button class="btn btn-sm btn-outline w-full justify-start" onclick="fillPath('C:\\\\Users\\\\Public\\\\Desktop\\\\')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                    <span class="text-left flex-1">Public Desktop folder</span>
+                    <code class="text-xs">C:\Users\Public\Desktop\</code>
+                </button>
+            </div>
+            
+            <div class="alert alert-warning mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span class="text-sm">Replace example paths with actual files on your system!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Documentation -->
+    <div class="card bg-base-200 shadow-xl mt-6">
+        <div class="card-body">
+            <h3 class="card-title text-xl mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                For Developers
+            </h3>
+            
+            <div class="space-y-3">
+                <div>
+                    <h4 class="font-semibold mb-1">API Endpoint:</h4>
+                    <div class="mockup-code">
+                        <pre><code>POST /api/files/open</code></pre>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-1">Request Body:</h4>
+                    <div class="mockup-code">
+                        <pre><code>{
+  "file_path": "C:\\path\\to\\file.xlsx"
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-1">JavaScript Usage:</h4>
+                    <div class="mockup-code">
+                        <pre><code>await openFileWithDefaultApp('C:\\path\\to\\file.xlsx');</code></pre>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-1">HTML Button Example:</h4>
+                    <div class="mockup-code">
+                        <pre><code>&lt;button class="open-file-btn" data-filepath="C:\\file.xlsx"&gt;
+  Open File
+&lt;/button&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Navigation -->
+    <div class="mt-6 text-center">
+        <a href="/" class="btn btn-ghost btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Home
+        </a>
+    </div>
+</div>
+
+<style>
+    .gradient-text {
+        background: linear-gradient(135deg, #2563eb, #7c3aed, #db2777, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: gradientShift 4s ease infinite;
+        background-size: 200% 200%;
+    }
+
+    @keyframes gradientShift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+</style>
+
+<!-- Include file operations JavaScript -->
+<script src="/static/js/file_operations.js"></script>
+
+<script>
+    // Fallback notification function if external JS doesn't load
+    if (typeof showNotification !== 'function') {
+        window.showNotification = function(type, message) {
+            const alertClass = {
+                'success': 'alert-success',
+                'error': 'alert-error',
+                'warning': 'alert-warning',
+                'info': 'alert-info'
+            }[type] || 'alert-info';
+            
+            const icon = type === 'success' 
+                ? '<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+            
+            const alertHtml = `
+                <div class="alert ${alertClass} shadow-2xl fixed top-20 right-4 w-auto max-w-md z-[9999] animate-bounce" id="temp-notification-${Date.now()}">
+                    <div class="flex items-center gap-3">
+                        ${icon}
+                        <span class="font-semibold">${message}</span>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', alertHtml);
+            const notificationId = `temp-notification-${Date.now()}`;
+            const lastNotification = document.body.lastElementChild;
+            
+            setTimeout(() => {
+                if (lastNotification && lastNotification.classList.contains('alert')) {
+                    lastNotification.style.transition = 'opacity 0.5s';
+                    lastNotification.style.opacity = '0';
+                    setTimeout(() => lastNotification.remove(), 500);
+                }
+            }, 5000); // Show for 5 seconds
+        }
+    }
+
+    // Handle open file button click
+    async function handleOpenFile() {
+        const input = document.getElementById('filePathInput');
+        const filePath = input.value.trim();
+        
+        if (!filePath) {
+            showNotification('warning', 'Please enter a file path');
+            input.focus();
+            return;
+        }
+        
+        // Check if function is loaded
+        if (typeof openFileWithDefaultApp !== 'function') {
+            showNotification('error', 'JavaScript file not loaded. Trying to call API directly...');
+            console.error('openFileWithDefaultApp function not found, calling API directly');
+            
+            // Fallback: call API directly
+            const btn = document.getElementById('openFileBtn');
+            const loading = document.getElementById('loadingIndicator');
+            btn.disabled = true;
+            loading.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/api/files/open', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ file_path: filePath })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showNotification('success', data.message || 'File opened successfully! ✓');
+                } else {
+                    showNotification('error', data.detail || 'Failed to open file');
+                }
+            } catch (error) {
+                showNotification('error', 'Network error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                loading.classList.add('hidden');
+            }
+            return;
+        }
+        
+        // Show loading
+        const btn = document.getElementById('openFileBtn');
+        const loading = document.getElementById('loadingIndicator');
+        btn.disabled = true;
+        loading.classList.remove('hidden');
+        
+        try {
+            await openFileWithDefaultApp(filePath);
+        } finally {
+            // Hide loading
+            btn.disabled = false;
+            loading.classList.add('hidden');
+        }
+    }
+
+    // Handle download file button click
+    async function handleDownloadFile() {
+        const input = document.getElementById('filePathInput');
+        const filePath = input.value.trim();
+        if (!filePath) {
+            showNotification('warning', 'Please enter a file path');
+            input.focus();
+            return;
+        }
+        const btn = document.getElementById('downloadFileBtn');
+        btn.disabled = true;
+        showNotification('info', 'Preparing download...');
+        try {
+            if (typeof downloadAndAutoOpenFile === 'function') {
+                await downloadAndAutoOpenFile(filePath);
+            } else {
+                // Fallback simple navigation
+                window.location.href = '/api/files/download?file_path=' + encodeURIComponent(filePath);
+            }
+        } finally {
+            btn.disabled = false;
+        }
+    }
+    
+    // Clear form
+    function clearForm() {
+        document.getElementById('filePathInput').value = '';
+        document.getElementById('filePathInput').focus();
+    }
+    
+    // Fill path from examples
+    function fillPath(path) {
+        document.getElementById('filePathInput').value = path;
+        document.getElementById('filePathInput').focus();
+    }
+    
+    // Allow Enter key to submit
+    document.getElementById('filePathInput').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleOpenFile();
+        }
+    });
+    
+    // Focus input on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('filePathInput').focus();
+    });
+</script>
+{% endblock %}

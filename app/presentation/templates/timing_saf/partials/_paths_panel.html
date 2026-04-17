@@ -1,0 +1,32 @@
+{# Timing SAF: Library Paths Configuration Panel #}
+<div class="collapse collapse-arrow bg-base-100 border border-base-300 shadow-lg rounded-lg glass-panel-card p-4" id="pathsConfigPanel">
+  <input type="checkbox" id="pathsConfigCollapse" />
+  <div class="collapse-title text-base font-bold bg-primary text-primary-content rounded-t-lg glass-panel-card p-3">
+    📚 Library Paths Configuration
+  </div>
+  <div class="collapse-content bg-base-100 glass-panel-card">
+    <div class="grid grid-cols-1 gap-3 pt-2">
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text font-semibold">Raw Libs Path</span>
+        </div>
+        <input type="text" id="rawLibsPathInput" class="input input-sm input-bordered font-mono text-xs" placeholder="Enter raw libs path...">
+      </label>
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text font-semibold">Postedit Libs Path</span>
+        </div>
+        <input type="text" id="posteditLibsPathInput" class="input input-sm input-bordered font-mono text-xs">
+      </label>
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text font-semibold">PostQA Libs Path</span>
+        </div>
+        <input type="text" id="postQaLibsPathInput" class="input input-sm input-bordered font-mono text-xs">
+      </label>
+    </div>
+    <div class="text-[10px] opacity-70 mt-2">
+      Paths are automatically configured based on selected project/subproject.
+    </div>
+  </div>
+</div>

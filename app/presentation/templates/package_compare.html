@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% from 'components/page_header.html' import page_header %}
+{% from 'components/layout_form.html' import render_form %}
+
+{% block title %}Package Compare{% endblock %}
+
+{% block content %}
+<div class="mx-auto px-4 py-8">
+    {{ page_header(title, page_id) }}
+
+    <div class="mt-8">
+        {{ render_form(fields=form_fields, hidden_fields=hidden_fields, container_class='card bg-base-100 shadow p-4 glass-panel-card', form_class='form-control w-full') }}
+    </div>
+</div>
+
+<script src="/static/js/shared/layout_form.js"></script>
+<script src="/static/js/table.js"></script>
+<script src="/static/js/package_compare.js"></script>
+{% endblock %}

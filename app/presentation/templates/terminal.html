@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% from 'components/page_header.html' import page_header %}
+{% from 'components/page_container.html' import page_container %}
+{% block title %}Terminal{% endblock %}
+{% block content %}
+{% call page_container() %}
+  {{ page_header('Terminal', 'Interactive shell session (PTY) – similar to a real terminal. Use responsibly.') }}
+
+  <div class="card bg-base-100 shadow glass-panel-card">
+    <div class="card-body p-4">
+      <div class="flex items-center gap-2 mb-3 text-xs">
+        <button id="reconnectBtn" class="btn btn-xs">Reconnect</button>
+        <button id="clearBtn" class="btn btn-xs btn-outline">Clear</button>
+        <button id="insertLsfBtn" class="btn btn-xs btn-primary">Insert LSF Job Command</button>
+        <span id="connStatus" class="badge badge-warning">Connecting...</span>
+        <span class="ml-auto opacity-60">Resize window to adjust terminal.</span>
+      </div>
+      <div id="terminal" class="rounded bg-black overflow-hidden" style="height: 80vh;"></div>
+    </div>
+  </div>
+
+<link rel="stylesheet" href="/static/css/vendor/xterm.min.css" />
+<script src="/static/js/vendor/xterm/xterm.min.js"></script>
+<script src="/static/js/vendor/xterm/xterm-addon-fit.min.js"></script>
+<script src="/static/js/terminal/terminal_page.js"></script>
+{% endcall %}
+{% endblock %}

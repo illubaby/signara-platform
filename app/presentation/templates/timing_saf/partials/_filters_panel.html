@@ -1,0 +1,47 @@
+{# Timing SAF: Filter Controls Panel #}
+<div class="card bg-base-200/50 shadow-sm mb-3" id="filtersPanel">
+  <div class="card-body p-3">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="form-control">
+        <label class="label py-1">
+          <span class="label-text text-xs font-semibold">Search Cells</span>
+        </label>
+        <input type="text" id="cellSearchInput" placeholder="Type to search..." class="input input-sm input-bordered">
+      </div>
+      <div class="form-control">
+        <label class="label py-1">
+          <span class="label-text text-xs font-semibold">Cell Type</span>
+        </label>
+        <select id="cellTypeFilter" class="select select-sm select-bordered">
+          <option value="all">All Types</option>
+          <option value="sis">SiS Only</option>
+          <option value="nt">NT Only</option>
+        </select>
+      </div>
+      <div class="form-control">
+        <label class="label py-1">
+          <span class="label-text text-xs font-semibold">PVT Status</span>
+        </label>
+        <select id="pvtStatusFilter" class="select select-sm select-bordered">
+          <option value="all">All Status</option>
+          <option value="passed">Has Passed</option>
+          <option value="failed">Has Failed</option>
+          <option value="in_progress">In Progress</option>
+          <option value="not_started">Not Started</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex items-center justify-between mt-2">
+      <div class="text-xs opacity-70">
+        <span id="visibleCellCount">0</span> of <span id="totalCellCount">0</span> cells visible
+        <span id="hiddenCellCount" class="ml-2 text-warning"></span>
+      </div>
+      <button id="clearFiltersBtn" class="btn btn-xs btn-ghost">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        Clear Filters
+      </button>
+    </div>
+  </div>
+</div>

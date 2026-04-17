@@ -1,0 +1,27 @@
+{# Timing SAF: Cells Table #}
+<div class="overflow-x-auto shadow rounded-lg bg-base-100 glass-panel-card" id="cellsTableWrapper">
+  <table class="table table-sm" id="cellsTable">
+    <thead>
+      <tr>
+        <th>Cell</th>
+        <th>Type</th>
+        <th>Netlist Snaphier</th>
+        <th>PVT Status</th>
+        <th>Actions</th>
+        <th>Postedit</th>
+        <th>Timing QA</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+<div class="text-[10px] opacity-70 mt-1 flex flex-col gap-1" id="cellsLegend">
+  <div class="flex gap-3">
+    <span class="font-semibold">PVT Status:</span>
+    <span><span class="badge badge-success badge-xs mr-1"></span>Passed</span>
+    <span><span class="badge badge-error badge-xs mr-1"></span>Failed</span>
+    <span><span class="badge badge-warning badge-xs mr-1"></span>In Progress</span>
+    <span><span class="badge badge-ghost badge-xs mr-1"></span>Not Started</span>
+  </div>
+</div>

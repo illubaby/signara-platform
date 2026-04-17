@@ -1,0 +1,18 @@
+{% macro file_editor(field_name) %}
+<div class="mt-2">
+    <div class="collapse collapse-arrow border border-base-300 bg-base-200">
+        <input type="checkbox" id="editor-toggle-{{ field_name }}" /> 
+        <div class="collapse-title text-sm font-medium">
+            Edit File Content
+        </div>
+        <div class="collapse-content">
+            <div class="flex justify-between items-center mb-2">
+                <button type="button" class="btn btn-xs btn-outline" onclick="loadFileContent('{{ field_name }}')">Load</button>
+                <button type="button" class="btn btn-xs btn-primary" onclick="saveFileContent('{{ field_name }}')">Save</button>
+            </div>
+            <textarea id="editor-{{ field_name }}" class="textarea textarea-bordered w-full font-mono text-xs" rows="10" placeholder="File content will appear here..."></textarea>
+            <div id="editor-status-{{ field_name }}" class="text-xs mt-1"></div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

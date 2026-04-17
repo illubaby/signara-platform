@@ -1,0 +1,257 @@
+{% macro file_browser_modal() %}
+<!-- Reusable File Browser Modal Component -->
+<dialog id="fileBrowserModal" class="modal">
+  <div class="modal-box w-11/12 max-w-5xl">
+    <h3 class="font-bold text-lg mb-4">Browse Files</h3>
+    
+    <!-- Current Path Display -->
+    <div class="flex items-center gap-2 mb-4">
+      <span class="text-sm opacity-70">Path:</span>
+      <div class="flex-1 flex items-center gap-1 flex-wrap">
+        <button type="button" class="btn btn-xs" id="browserRootBtn">/</button>
+        <div id="browserBreadcrumb" class="flex items-center gap-1 flex-wrap"></div>
+      </div>
+    </div>
+
+    <!-- File Browser Content -->
+    <div class="border rounded p-2 bg-base-200 h-96 overflow-auto mb-4">
+      <table class="table table-xs">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="browserFileList">
+          <tr><td colspan="4" class="text-center italic opacity-60">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Selected Path Display -->
+    <div class="mb-4">
+      <label class="label"><span class="label-text">Selected Path:</span></label>
+      <input type="text" id="browserSelectedPath" class="input input-sm input-bordered w-full" readonly>
+    </div>
+
+    <!-- Modal Actions -->
+    <div class="modal-action">
+      <button type="button" id="browserSelectBtn" class="btn btn-sm btn-primary">Select</button>
+      <button type="button" id="browserCancelBtn" class="btn btn-sm">Cancel</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<script>
+(function() {
+  // File Browser Module - Reusable across pages
+  window.FileBrowser = {
+    currentPath: '',
+    targetInputId: null,
+    browseType: 'dir', // 'dir' or 'file'
+    project: null,
+    subproject: null,
+    timingRoot: null,
+    resolveCallback: null,
+    
+    init() {
+      const modal = document.getElementById('fileBrowserModal');
+      const selectBtn = document.getElementById('browserSelectBtn');
+      const cancelBtn = document.getElementById('browserCancelBtn');
+      const rootBtn = document.getElementById('browserRootBtn');
+      
+      selectBtn.addEventListener('click', () => this.selectPath());
+      cancelBtn.addEventListener('click', () => this.close());
+      rootBtn.addEventListener('click', () => this.navigateTo(''));
+      
+      // Close on backdrop click
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) this.close();
+      });
+    },
+    
+    open(options = {}) {
+      const { inputId, type = 'dir', project, subproject, initialPath = '', callback } = options;
+      this.targetInputId = inputId;
+      this.browseType = type;
+      this.project = project;
+      this.subproject = subproject;
+      this.resolveCallback = callback;
+      this.currentPath = initialPath;
+      
+      document.getElementById('browserSelectedPath').value = '';
+      document.getElementById('fileBrowserModal').showModal();
+      this.navigateTo(initialPath);
+    },
+    
+    close() {
+      document.getElementById('fileBrowserModal').close();
+    },
+    
+    async navigateTo(path) {
+      this.currentPath = path;
+      this.updateBreadcrumb();
+      await this.loadDirectory(path);
+      
+      // Update selected path display for directory browsing
+      if (this.browseType === 'dir') {
+        document.getElementById('browserSelectedPath').value = path;
+      }
+    },
+    
+    updateBreadcrumb() {
+      const breadcrumb = document.getElementById('browserBreadcrumb');
+      breadcrumb.innerHTML = '';
+      
+      if (!this.currentPath) return;
+      
+      const parts = this.currentPath.split('/').filter(p => p);
+      let accumulated = '';
+      
+      parts.forEach((part, idx) => {
+        if (idx > 0) {
+          const sep = document.createElement('span');
+          sep.textContent = '/';
+          sep.className = 'opacity-50';
+          breadcrumb.appendChild(sep);
+        }
+        
+        accumulated += (idx > 0 ? '/' : '') + part;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-xs';
+        btn.textContent = part;
+        btn.dataset.path = accumulated;
+        btn.addEventListener('click', (e) => {
+          this.navigateTo(e.target.dataset.path);
+        });
+        breadcrumb.appendChild(btn);
+      });
+    },
+    
+    async loadDirectory(path) {
+      const fileList = document.getElementById('browserFileList');
+      fileList.innerHTML = '<tr><td colspan="4" class="text-center italic opacity-60">Loading...</td></tr>';
+      
+      try {
+        const url = `/api/explorer/${this.project}/${this.subproject}?path=${encodeURIComponent(path)}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to load directory');
+        
+        const data = await response.json();
+        // Store timing root for path construction
+        this.timingRoot = data.root;
+        this.renderEntries(data.entries);
+      } catch (error) {
+        fileList.innerHTML = `<tr><td colspan="4" class="text-center text-error">${error.message}</td></tr>`;
+      }
+    },
+    
+    renderEntries(entries) {
+      const fileList = document.getElementById('browserFileList');
+      
+      if (!entries || entries.length === 0) {
+        fileList.innerHTML = '<tr><td colspan="4" class="text-center italic opacity-60">Empty directory</td></tr>';
+        return;
+      }
+      
+      // Sort: directories first, then files
+      const sorted = [...entries].sort((a, b) => {
+        if (a.is_dir !== b.is_dir) return a.is_dir ? -1 : 1;
+        return a.name.localeCompare(b.name);
+      });
+      
+      fileList.innerHTML = sorted.map(entry => {
+        const icon = entry.is_dir ? '📁' : '📄';
+        const size = entry.is_dir ? '-' : this.formatSize(entry.size);
+        const path = this.currentPath ? `${this.currentPath}/${entry.name}` : entry.name;
+        const external = entry.external ? '<span class="badge badge-xs badge-warning ml-1">ext</span>' : '';
+        
+        let actionBtn = '';
+        if (entry.is_dir) {
+          actionBtn = `<button type="button" class="btn btn-xs btn-ghost" onclick="window.FileBrowser.navigateTo('${this.escapeHtml(path)}')">Open</button>`;
+        } else if (this.browseType === 'file') {
+          actionBtn = `<button type="button" class="btn btn-xs btn-primary" onclick="window.FileBrowser.selectFile('${this.escapeHtml(path)}')">Select</button>`;
+        }
+        
+        const rowClick = entry.is_dir ? `onclick="window.FileBrowser.navigateTo('${this.escapeHtml(path)}')"` : '';
+        
+        return `<tr ${rowClick} class="${entry.is_dir ? 'cursor-pointer hover:bg-base-300' : ''}">
+          <td>${icon} ${this.escapeHtml(entry.name)}${external}</td>
+          <td>${entry.is_dir ? 'Directory' : 'File'}</td>
+          <td>${size}</td>
+          <td>${actionBtn}</td>
+        </tr>`;
+      }).join('');
+    },
+    
+    selectFile(path) {
+      document.getElementById('browserSelectedPath').value = path;
+      this.selectPath();
+    },
+    
+    selectPath() {
+      const selectedPath = document.getElementById('browserSelectedPath').value || this.currentPath;
+      
+      if (!selectedPath) {
+        alert('Please select a path');
+        return;
+      }
+      
+      // Construct full absolute path
+      // timingRoot is like: C:\Users\...\tb\{project}\{subproject}\design\timing
+      // currentPath is relative to timingRoot, e.g., 'sis' or 'release/raw_lib'
+      let fullPath = selectedPath;
+      if (this.timingRoot) {
+        // Normalize path separators for consistency
+        const normalizedRoot = this.timingRoot.replace(/\\/g, '/');
+        const normalizedPath = selectedPath.replace(/\\/g, '/');
+        fullPath = `${normalizedRoot}/${normalizedPath}`;
+        // Remove any double slashes
+        fullPath = fullPath.replace(/\/+/g, '/').replace(/\\\\/g, '\\');
+      }
+      
+      if (this.targetInputId) {
+        const input = document.getElementById(this.targetInputId);
+        if (input) {
+          input.value = fullPath;
+          input.scrollLeft = input.scrollWidth;
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      }
+      
+      if (this.resolveCallback) {
+        this.resolveCallback(fullPath);
+      }
+      
+      this.close();
+    },
+    
+    formatSize(bytes) {
+      if (bytes == null) return '-';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    },
+    
+    escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML.replace(/'/g, '&#39;');
+    }
+  };
+  
+  // Auto-initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => window.FileBrowser.init());
+  } else {
+    window.FileBrowser.init();
+  }
+})();
+</script>
+{% endmacro %}

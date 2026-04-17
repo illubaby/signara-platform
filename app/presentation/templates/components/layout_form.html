@@ -1,0 +1,240 @@
+{% from 'components/execution_output.html' import execution_output %}
+{% from 'components/file_editor.html' import file_editor %}
+
+{% macro render_form(fields, hidden_fields=[], container_class='layout-form-container bg-base-200 rounded-box border border-base-300 p-4 w-4/5 mx-auto shadow-md glass-panel-card', form_class='form-control w-full max-w-[80vw]') %}
+<div class="{{ container_class }}">
+<form class="{{ form_class }}" data-page-id="{{ page_id }}">
+    {# Render hidden fields #}
+    {% for item in hidden_fields %}
+    {% if item|length == 6 %}
+    <input type="hidden" id="{{ item[0] }}" name="{{ item[0] }}" value="{{ item[1] }}" {% if item[2] %}data-optional="true"{% endif %} {% if item[3] is not none %}data-line-ending="{{ item[3] }}"{% endif %} {% if item[4] %}data-literal="true"{% endif %} {% if item[5] %}data-no-prefix="true"{% endif %}>
+    {% elif item|length == 5 %}
+    <input type="hidden" id="{{ item[0] }}" name="{{ item[0] }}" value="{{ item[1] }}" {% if item[2] %}data-optional="true"{% endif %} {% if item[3] is not none %}data-line-ending="{{ item[3] }}"{% endif %} {% if item[4] %}data-literal="true"{% endif %}>
+    {% elif item|length == 4 %}
+    <input type="hidden" id="{{ item[0] }}" name="{{ item[0] }}" value="{{ item[1] }}" {% if item[2] %}data-optional="true"{% endif %} {% if item[3] is not none %}data-line-ending="{{ item[3] }}"{% endif %}>
+    {% elif item|length == 3 %}
+    <input type="hidden" id="{{ item[0] }}" name="{{ item[0] }}" value="{{ item[1] }}" {% if item[2] %}data-optional="true"{% endif %}>
+    {% else %}
+    <input type="hidden" id="{{ item[0] }}" name="{{ item[0] }}" value="{{ item[1] }}">
+    {% endif %}
+    {% endfor %}
+    
+    {# Collect ALL unique check_groups across ALL groups (only once, before rendering) #}
+    {% set all_check_groups = [] %}
+    {% for name, field in fields.items() %}
+        {% if field.type == 'group' %}
+            {% for item in field.group_fields %}
+                {% if item.check_group and item.check_group not in all_check_groups %}
+                    {% set _ = all_check_groups.append(item.check_group) %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+    
+    {% set toggle_buttons_shown = [False] %}
+    {% set rendered_divides = [] %}
+    {% for name, field in fields.items() %}
+    {% set divide_name = field.divide if field.divide is defined else (field.devide if field.devide is defined else None) %}
+    {% if divide_name and divide_name not in rendered_divides %}
+    {% set _ = rendered_divides.append(divide_name) %}
+    <div class="mb-4" data-field-names="{% for n2, f2 in fields.items() %}{% set f2_divide = f2.divide if f2.divide is defined else (f2.devide if f2.devide is defined else None) %}{% if f2_divide and f2_divide == divide_name %}{{ n2 }}{% if not loop.last %},{% endif %}{% endif %}{% endfor %}">
+        <div class="flex gap-3">
+            {# Collect all fields sharing this devide name in insertion order #}
+            {% set divide_items = [] %}
+            {% for n2, f2 in fields.items() %}
+                {% set f2_divide = f2.divide if f2.divide is defined else (f2.devide if f2.devide is defined else None) %}
+                {% if f2_divide and f2_divide == divide_name %}
+                    {% set _ = divide_items.append((n2, f2)) %}
+                {% endif %}
+            {% endfor %}
+            {% for pair in divide_items %}
+                {% set item_name = pair[0] %}
+                {% set item_field = pair[1] %}
+                <div class="flex-1">
+                    <label class="label" for="{{ item_name }}">
+                        <span class="label-text font-semibold">{{ item_field.label if item_field.label else item_name.replace('_', ' ')|title }}</span>
+                    </label>
+                    {% if item_field.type == 'multi' %}
+                    <div id="{{ item_name }}-container" data-multi="true" data-field-name="{{ item_name }}" data-optional="{{ item_field.optional }}" {% if item_field.exclude_option %}data-exclude-option="true"{% endif %}>
+                        {% if item_field.value %}
+                            {% for value in item_field.value %}
+                            <div class="flex gap-2 mb-2 multi-input-row">
+                                <input type="text" name="{{ item_name }}[]" value="{{ value }}" class="input input-bordered flex-1" placeholder="{{ item_field.placeholder }}">
+                                <button type="button" class="btn btn-error btn-sm multi-remove-btn">Remove</button>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                        <div class="flex gap-2 mb-2 multi-input-row">
+                            <input type="text" name="{{ item_name }}[]" value="" class="input input-bordered flex-1" placeholder="{{ item_field.placeholder }}">
+                            <button type="button" class="btn btn-error btn-sm multi-remove-btn">Remove</button>
+                        </div>
+                        {% endif %}
+                        <button type="button" class="btn btn-xs btn-outline multi-add-btn" data-target="{{ item_name }}-container" data-field-name="{{ item_name }}" data-placeholder="{{ item_field.placeholder }}">+ Add {{ item_field.label }}</button>
+                    </div>
+                    {% elif item_field.type == 'literal' %}
+                    <div class="flex gap-2 items-center">
+                        {% if item_field.optional %}
+                        <input type="checkbox" id="{{ item_name }}_enabled" class="checkbox checkbox-sm" checked data-optional-checkbox="true" data-target-field="{{ item_name }}" title="Enable/disable this field">
+                        {% endif %}
+                        <select id="{{ item_name }}" name="{{ item_name }}" class="select select-bordered select-sm w-full" data-literal="true" {% if item_field.optional %}data-optional="true"{% endif %} {% if item_field.include_attribute %}data-include-attribute="true"{% endif %} {% if item_field.exclude_option %}data-exclude-option="true"{% endif %}>
+                            {% for option in item_field.options %}
+                            <option value="{{ option }}" {% if item_field.value == option %}selected{% endif %}>{{ option|title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% elif item_field.type == 'int' %}
+                    <input type="number" id="{{ item_name }}" name="{{ item_name }}" value="{{ item_field.value }}" class="input input-sm input-bordered font-mono text-xs w-full" {% if item_field.optional %}data-optional="true"{% endif %} {% if item_field.placeholder %}placeholder="{{ item_field.placeholder }}"{% endif %} {% if item_field.exclude_option %}data-exclude-option="true"{% endif %}>
+                    {% elif item_field.type == 'checkbox' %}
+                    <input type="checkbox" id="{{ item_name }}" name="{{ item_name }}" class="checkbox checkbox-sm" data-checkbox="true" {% if item_field.value %}checked{% endif %} {% if item_field.exclude_option %}data-exclude-option="true"{% endif %}>
+                    {% else %}
+                    <div class="flex gap-2 items-center">
+                        {% if item_field.optional %}
+                        <input type="checkbox" id="{{ item_name }}_enabled" class="checkbox checkbox-sm" checked data-optional-checkbox="true" data-target-field="{{ item_name }}" title="Enable/disable this field">
+                        {% endif %}
+                        <input type="text" id="{{ item_name }}" name="{{ item_name }}" value="{{ item_field.value }}" class="input input-sm input-bordered font-mono text-xs w-full" {% if item_field.optional %}data-optional="true"{% endif %} {% if item_field.placeholder %}placeholder="{{ item_field.placeholder }}"{% endif %} {% if item_field.exclude_option %}data-exclude-option="true"{% endif %}>
+                        {% if item_field.browser %}
+                        <button type="button" class="btn btn-sm btn-outline btn-xs" data-browser="true" data-target-input="{{ item_name }}">Browse</button>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        {# Render file editors for any items that require it #}
+        {% for pair in divide_items %}
+            {% set item_name = pair[0] %}
+            {% set item_field = pair[1] %}
+            {% if item_field.editor %}
+                {{ file_editor(item_name) }}
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% elif not divide_name %}
+    <div class="mb-4" data-field-name="{{ name }}">
+        {% if field.type != 'group' %}
+        <label class="label" for="{{ name }}">
+            <span class="label-text font-semibold">{{ field.label if field.label else name.replace('_', ' ')|title }}</span>
+        </label>
+        {% endif %}
+        {% if field.type == 'multi' %}
+        <div id="{{ name }}-container" data-multi="true" data-field-name="{{ name }}" data-optional="{{ field.optional }}" {% if field.exclude_option %}data-exclude-option="true"{% endif %}>
+            {% if field.value %}
+                {% for value in field.value %}
+                <div class="flex gap-2 mb-2 multi-input-row">
+                    <input type="text" name="{{ name }}[]" value="{{ value }}" class="input input-bordered flex-1" placeholder="{{ field.placeholder }}">
+                    <button type="button" class="btn btn-error btn-sm multi-remove-btn">Remove</button>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="flex gap-2 mb-2 multi-input-row">
+                <input type="text" name="{{ name }}[]" value="" class="input input-bordered flex-1" placeholder="{{ field.placeholder }}">
+                <button type="button" class="btn btn-error btn-sm multi-remove-btn">Remove</button>
+            </div>
+            {% endif %}
+            <button type="button" class="btn btn-sm btn-outline multi-add-btn" data-target="{{ name }}-container" data-field-name="{{ name }}" data-placeholder="{{ field.placeholder }}">+ Add {{ field.label }}</button>
+        </div>
+        {% elif field.type == 'literal' %}
+        <div class="flex gap-2 items-center">
+            {% if field.optional %}
+            <input type="checkbox" id="{{ name }}_enabled" class="checkbox checkbox-sm" checked data-optional-checkbox="true" data-target-field="{{ name }}" title="Enable/disable this field">
+            {% endif %}
+            <select id="{{ name }}" name="{{ name }}" class="select select-bordered select-sm w-full" data-literal="true" {% if field.optional %}data-optional="true"{% endif %} {% if field.include_attribute %}data-include-attribute="true"{% endif %} {% if field.exclude_option %}data-exclude-option="true"{% endif %}>
+                {% for option in field.options %}
+                <option value="{{ option }}" {% if field.value == option %}selected{% endif %}>{{ option|title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% elif field.type == 'int' %}
+        <input type="number" id="{{ name }}" name="{{ name }}" value="{{ field.value }}" class="input input-sm input-bordered font-mono text-xs w-full" {% if field.optional %}data-optional="true"{% endif %} {% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %} {% if field.exclude_option %}data-exclude-option="true"{% endif %}>
+        {% elif field.type == 'checkbox' %}
+        <input type="checkbox" id="{{ name }}" name="{{ name }}" class="checkbox" data-checkbox="true" {% if field.value %}checked{% endif %} {% if field.exclude_option %}data-exclude-option="true"{% endif %}>
+        {% elif field.type == 'group' %}
+        {# Show toggle buttons ONCE before the first group with check_groups #}
+        {% if all_check_groups|length > 0 and not toggle_buttons_shown[0] %}
+            {% set _ = toggle_buttons_shown.append(True) %}
+            {% set _ = toggle_buttons_shown.pop(0) %}
+            <div class="mb-3 p-3 bg-base-200 rounded-box border border-base-300">
+                <div class="text-xs font-semibold mb-2">Quick Toggle:</div>
+                <div class="flex flex-wrap gap-2">
+                    {% for cg in all_check_groups %}
+                    <button type="button" class="btn btn-xs btn-outline" onclick="toggleCheckGroup('{{ cg }}', true)">✓ {{ cg }}</button>
+                    <button type="button" class="btn btn-xs btn-outline" onclick="toggleCheckGroup('{{ cg }}', false)">✗ {{ cg }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        <div class="flex flex-col gap-2" id="{{ name }}">
+            {% if field.group_display and field.group_label %}
+            <div class="text-sm font-semibold">{{ field.group_label }}</div>
+            {% endif %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 items-start">
+                {% for item in field.group_fields %}
+                {% if item.type == 'checkbox' %}
+                <label class="inline-flex items-center gap-2 p-2 rounded-box border border-base-300">
+                    <input type="checkbox" id="{{ item.name }}" name="{{ item.name }}" class="checkbox checkbox-sm" data-checkbox="true" {% if item.value %}checked{% endif %} {% if item.check_group %}data-check-group="{{ item.check_group }}"{% endif %}>
+                    <span class="text-xs truncate" title="{{ item.label }}">{{ item.label }}</span>
+                </label>
+                {% elif item.type == 'int' %}
+                <div class="flex flex-col p-2 rounded-box border border-base-300">
+                    <label class="text-xs mb-1" for="{{ item.name }}">{{ item.label }}</label>
+                    <input type="number" id="{{ item.name }}" name="{{ item.name }}" value="{{ item.value }}" class="input input-bordered input-xs w-full" {% if item.optional %}data-optional="true"{% endif %} {% if item.placeholder %}placeholder="{{ item.placeholder }}"{% endif %}>
+                </div>
+                {% else %}
+                <div class="flex flex-col p-2 rounded-box border border-base-300">
+                    <label class="text-xs mb-1" for="{{ item.name }}">{{ item.label }}</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="text" id="{{ item.name }}" name="{{ item.name }}" value="{{ item.value }}" class="input input-bordered input-xs w-full" {% if item.optional %}data-optional="true"{% endif %} {% if item.placeholder %}placeholder="{{ item.placeholder }}"{% endif %} {% if item.exclude_option %}data-exclude-option="true"{% endif %}>
+                        {% if item.browser %}
+                        <button type="button" class="btn btn-sm btn-outline btn-xs" data-browser="true" data-target-input="{{ item.name }}">Browse</button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="flex gap-2 items-center">
+            {% if field.optional %}
+            <input type="checkbox" id="{{ name }}_enabled" class="checkbox checkbox-sm" checked data-optional-checkbox="true" data-target-field="{{ name }}" title="Enable/disable this field">
+            {% endif %}
+            <input type="text" id="{{ name }}" name="{{ name }}" value="{{ field.value }}" class="input input-sm input-bordered font-mono text-xs w-full" {% if field.optional %}data-optional="true"{% endif %} {% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %} {% if field.exclude_option %}data-exclude-option="true"{% endif %}>
+            {% if field.browser %}
+            <button type="button" class="btn btn-sm btn-outline" data-browser="true" data-target-input="{{ name }}">Browse</button>
+            {% endif %}
+        </div>
+        {% if field.editor %}
+        {{ file_editor(name) }}
+        {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    
+    <div class="mt-6 flex justify-center">
+        <!-- Single cell Run button (hidden in Multiple Cells tab by JS) -->
+        <button type="submit" class="btn" id="layoutFormRunBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Run
+        </button>
+    </div>
+    
+    {# Status message #}
+    <div id="layoutFormStatus" class="mt-4 text-center text-sm"></div>
+</form>
+
+{# Execution Output Window #}
+<div class="mt-8">
+    {{ execution_output(container_id='layoutFormExecution') }}
+</div>
+
+{# Load WebSocket streaming dependencies (required for execution output) #}
+<script src="/static/js/shared/websocket_output_stream.js"></script>
+<script src="/static/js/shared/execution_stream_factory.js"></script>
+<script src="/static/js/shared/file_editor.js"></script>
+<script src="/static/file_picker.js"></script>
+</div>
+{% endmacro %}

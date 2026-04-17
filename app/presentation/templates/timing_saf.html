@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% from 'components/execution_output.html' import execution_output %}
+{% from 'components/page_header.html' import page_header %}
+{% from 'components/page_container.html' import page_container %}
+{% block title %}Timing SAF{% endblock %}
+{% block content %}
+{% call page_container() %}
+  {{ page_header('Timing SAF', 'Browse SiS cells and their SAF related status. Select a project & subproject to load data.') }}
+  <!-- External CSS for page-specific styles -->
+  <link rel="stylesheet" href="/static/css/timing_saf.css" />
+  <!-- Selection panel removed; page now requires global selection first -->
+  <div id="selectionPanel" class="hidden"></div>
+
+  {% include 'timing_saf/partials/_paths_panel.html' %}
+
+  <div id="cellsSection">
+    <div class="flex items-center justify-between mb-3 gap-3 flex-wrap" id="cellsHeader">
+      <div class="flex items-center gap-2">
+        <h3 class="font-semibold text-sm">Cells</h3>
+        <span id="cellCountBadge" class="badge badge-neutral badge-sm">0</span>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Explorer feature disabled -->
+        <!-- <button id="openExplorerBtn" class="btn btn-xs btn-primary" disabled title="Open Explorer in new tab for selected cell">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
+          Open Explorer
+        </button> -->
+        <button id="manageVisibilityBtn" class="btn btn-xs btn-outline">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+          </svg>
+          Manage Cells
+        </button>
+        <!-- <button id="multiSimBtn" class="btn btn-xs btn-primary" title="Run multiple cells in console">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h6m4 0h4a2 2 0 002-2V7a2 2 0 00-2-2H9m4 0l2 2M9 5l2 2"></path>
+          </svg>
+          Simulation Multiple Cells
+        </button> -->
+        <span id="selectedCellIndicator" class="text-xs opacity-70 hidden">
+          <span class="font-semibold">Selected:</span> <code id="selectedCellName" class="px-2 py-0.5 bg-base-200 rounded"></code>
+        </span>
+      </div>
+    </div>
+    <!-- {% include 'timing_saf/partials/_filters_panel.html' %} -->
+    {% include 'timing_saf/partials/_cells_table.html' %}
+  </div>
+
+  <!-- Modals -->
+  {% include 'timing_saf/partials/_manage_cells_modal.html' %}
+  {% include 'timing_saf/partials/_multi_sim_modal.html' %}
+  {% include 'timing_saf/partials/_postedit_modal.html' %}
+  {% include 'timing_saf/partials/_timing_qa_modal.html' %}
+  {% include 'timing_saf/partials/_execution_output_modal.html' %}
+  {% include 'timing_saf/partials/_brief_sum_modal.html' %}
+
+  <!-- Shared WebSocket Streaming Modules (Reusable) -->
+  <script src="{{ url_for('static', path='/js/shared/websocket_output_stream.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/shared/execution_stream_factory.js') }}"></script>
+  
+  <!-- JS Modules: keep dependency order; consider bundling later -->
+  <script src="/static/js/timing_saf/paths_panel.js"></script>
+  <script src="/static/js/timing_saf/shared_http.js"></script>
+  <script src="/static/js/timing_saf/pvt_status.js"></script>
+  <script src="/static/js/timing_saf/cells_view.js"></script>
+  <script src="/static/js/timing_saf/postedit_qa.js"></script>
+  <script src="/static/js/timing_saf/job_modals.js"></script>
+  <script src="/static/js/timing_saf/netlist_sync.js"></script>
+  <script src="/static/js/timing_saf/nt_settings.js"></script>
+  <script src="/static/js/timing_saf/brief_sum_modal.js"></script>
+  <script src="/static/js/timing_saf/multi_sim.js"></script>
+  <script src="/static/js/timing_saf/bootstrap.js"></script>
+{% endcall %}
+{% endblock %}
+

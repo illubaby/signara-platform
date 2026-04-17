@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% block title %}Choose Project | TimeCraft Platform{% endblock %}
+{% block content %}
+<style>
+  .gradient-text {
+    background: linear-gradient(135deg, #db2777, #7c3aed,#06f5a5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 20s ease infinite;
+    background-size: 200% 200%;
+  }
+  
+  [data-theme="dark"] .gradient-text,
+  [data-theme="night"] .gradient-text {
+    background: linear-gradient(135deg, #db2777, #7c3aed,#06f5a5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% 200%;
+  }
+  
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  .icon-gradient {
+    filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.5));
+  }
+  
+  [data-theme="dark"] .icon-gradient,
+  [data-theme="night"] .icon-gradient {
+    filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.6));
+  }
+  
+  .gradient-button {
+    background: linear-gradient(135deg, #2563eb, #7c3aed, #db2777, #f59e0b);
+    background-size: 200% 200%;
+    animation: gradientShift 4s ease infinite;
+    border: none;
+    color: white;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .gradient-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+  }
+  
+  .gradient-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  [data-theme="dark"] .gradient-button,
+  [data-theme="night"] .gradient-button {
+    background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6, #fbbf24);
+    background-size: 200% 200%;
+  }
+  
+  [data-theme="dark"] .gradient-button:hover:not(:disabled),
+  [data-theme="night"] .gradient-button:hover:not(:disabled) {
+    box-shadow: 0 8px 20px rgba(96, 165, 250, 0.5);
+  }
+</style>
+<div class="flex items-center justify-center min-h-[calc(100vh-12rem)]">
+<div class="max-w-2xl w-full">
+  <div class="card shadow-xl bg-base-100 glass-panel">
+    <div class="card-body">
+      <h1 class="card-title text-4xl font-bold mb-8 text-center justify-center">
+        <!-- <img src="https://www.svgrepo.com/show/485616/atom.svg" alt="Plan List" class="w-16 h-16 mr-3 icon-gradient" /> -->
+        <img src="https://www.svgrepo.com/show/485616/atom.svg" alt="Plan List" class="w-16 h-16 mr-3" />
+        <span class="font-title font-bold">Choose Project</span>
+      </h1>
+      
+      <form id="projectForm" class="space-y-6" autocomplete="off">
+        <!-- Project Selection -->
+        <div class="form-control">
+          <label for="projectSelect" class="label">
+            <span class="label-text text-lg font-semibold">Project</span>
+            <span class="label-text-alt text-error">*</span>
+          </label>
+          <div class="w-full">
+            <select id="projectSelect" class="select select-bordered select-lg w-full" required disabled aria-describedby="projectHelp">
+              <option disabled selected>Loading projects...</option>
+            </select>
+          </div>
+          <div id="projectHelp" class="text-xs opacity-70 mt-1">Projects read from server directory root.</div>
+        </div>
+
+        <!-- Subproject Selection -->
+        <div class="form-control">
+          <label for="subprojectSelect" class="label">
+            <span class="label-text text-lg font-semibold">Subproject</span>
+            <span class="label-text-alt text-error">*</span>
+          </label>
+          <select id="subprojectSelect" class="select select-bordered select-lg w-full" required disabled aria-describedby="subprojectHelp">
+            <option disabled selected>Select a project first...</option>
+          </select>
+          <div id="subprojectHelp" class="text-xs opacity-70 mt-1">First choose a project to load its subfolders.</div>
+        </div>
+
+        <!-- Actions -->
+  <div class="flex items-center justify-center pt-4">
+          <button type="submit" class="btn btn-lg w-40 bg-black text-white" disabled id="okButton">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            OK
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Loading modal -->
+<input type="checkbox" id="loadingModal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Loading Project...</h3>
+    <div class="flex items-center justify-center py-4">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+    <p class="py-4">Please wait while we prepare your selected project.</p>
+  </div>
+</div>
+
+<script>
+// Elements
+const projectSelect = document.getElementById('projectSelect');
+const subprojectSelect = document.getElementById('subprojectSelect');
+const okButton = document.getElementById('okButton');
+// reset button removed
+const projectForm = document.getElementById('projectForm');
+const loadingModal = document.getElementById('loadingModal');
+// refresh button removed
+
+async function fetchJSON(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+  return res.json();
+}
+
+async function loadProjects(showSpinner=true) {
+  try {
+    if (showSpinner) {
+      projectSelect.innerHTML = '<option disabled selected>Loading projects...</option>';
+      projectSelect.disabled = true;
+    }
+    const data = await fetchJSON('/api/projects');
+    projectSelect.innerHTML = '<option disabled selected>Select a project (please map the project to workspace first)</option>';
+    data.projects.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      projectSelect.appendChild(opt);
+    });
+    projectSelect.disabled = false;
+  // refresh button removed
+  } catch (err) {
+    console.error(err);
+    projectSelect.innerHTML = `<option disabled selected>Error loading projects (retry)</option>`;
+    projectSelect.disabled = true;
+  }
+}
+
+async function loadSubprojects(project) {
+  subprojectSelect.innerHTML = '<option disabled selected>Loading subprojects...</option>';
+  subprojectSelect.disabled = true;
+  try {
+    const data = await fetchJSON(`/api/projects/${encodeURIComponent(project)}/subprojects`);
+    if (data.subprojects.length === 0) {
+      subprojectSelect.innerHTML = '<option disabled selected>No subprojects found</option>';
+      okButton.disabled = true;
+      return;
+    }
+    subprojectSelect.innerHTML = '<option disabled selected>Select a subproject...</option>';
+    data.subprojects.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      subprojectSelect.appendChild(opt);
+    });
+    subprojectSelect.disabled = false;
+  } catch (err) {
+    console.error(err);
+    subprojectSelect.innerHTML = '<option disabled selected>Error loading subprojects</option>';
+  }
+}
+
+projectSelect.addEventListener('change', () => {
+  const project = projectSelect.value;
+  okButton.disabled = true;
+  subprojectSelect.disabled = true;
+  subprojectSelect.innerHTML = '<option disabled selected>Loading subprojects...</option>';
+  if (project) {
+    loadSubprojects(project);
+    // reset feature removed
+  }
+});
+
+subprojectSelect.addEventListener('change', () => {
+  okButton.disabled = !subprojectSelect.value;
+});
+
+// refresh & reset handlers removed
+
+projectForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const project = projectSelect.value;
+  const subproject = subprojectSelect.value;
+  if (project && subproject) {
+    // Persist global selection
+    try { window.AppSelection && window.AppSelection.set(project, subproject); } catch(_) {}
+    loadingModal.checked = true;
+    setTimeout(() => {
+      window.location.href = `/project-status?project=${encodeURIComponent(project)}&subproject=${encodeURIComponent(subproject)}`;
+    }, 600);
+  }
+});
+
+// Initial load
+loadProjects();
+</script>
+
+{% endblock %}

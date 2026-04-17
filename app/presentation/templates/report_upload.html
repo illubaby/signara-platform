@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% from 'components/page_header.html' import page_header %}
+{% from 'components/page_container.html' import page_container %}
+
+{% block title %}Report Upload | TimeCraft Platform{% endblock %}
+
+{% block content %}
+{% call page_container() %}
+  {{ page_header('Report Upload', 'Upload report files to Perforce depot') }}
+
+  <div class="glass-panel-card shadow-md rounded-box p-6 w-full max-w-full mx-auto">
+    <form id="uploadForm" class="space-y-6">
+      
+      <!-- Local Path Input -->
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text font-semibold">Local Path</span>
+          <span class="label-text-alt text-error">*Required</span>
+        </label>
+        <div class="flex gap-2">
+          <input 
+            type="text" 
+            id="localPath" 
+            placeholder="C:\path\to\local\report.xlsx" 
+            class="input input-bordered w-full text-sm font-mono" 
+            required
+          />
+          <button 
+            type="button" 
+            class="btn btn-sm btn-primary"
+            data-browser="true"
+            data-target-input="localPath"
+          >
+            Browse
+          </button>
+        </div>
+        <label class="label">
+          <span class="label-text-alt">Full path to the local file you want to upload</span>
+        </label>
+      </div>
+
+      <!-- Depot Path Input -->
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text font-semibold">Depot Path</span>
+          <span class="label-text-alt text-error">*Required</span>
+        </label>
+        <input 
+          type="text" 
+          id="depotPath" 
+          placeholder="//wwcad/msip/projects/example/report.xlsx" 
+          class="input input-bordered w-full text-sm font-mono" 
+          required
+        />
+        <label class="label">
+          <span class="label-text-alt">Perforce depot path where the file will be uploaded</span>
+        </label>
+      </div>
+
+      <!-- Description Input -->
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text font-semibold">Description</span>
+          <span class="label-text-alt">Optional</span>
+        </label>
+        <textarea 
+          id="description" 
+          placeholder="Describe the upload (optional)" 
+          class="textarea textarea-bordered w-full h-24"
+        ></textarea>
+        <label class="label">
+          <span class="label-text-alt">Changelist description for Perforce</span>
+        </label>
+      </div>
+
+      <!-- Upload Button -->
+      <div class="flex items-center gap-4">
+        <button 
+          type="submit" 
+          id="uploadButton" 
+          class="btn"
+        >
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+          <span id="buttonText">Upload to P4</span>
+          <span id="uploadSpinner" class="loading loading-spinner hidden ml-2"></span>
+        </button>
+        <button 
+          type="button" 
+          id="clearButton" 
+          class="btn btn-ghost"
+        >
+          Clear
+        </button>
+      </div>
+    </form>
+
+    <!-- Status Message -->
+    <div id="statusMessage" class="mt-6 hidden">
+      <div id="statusAlert" class="alert">
+        <svg id="statusIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span id="statusText"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Usage Instructions -->
+  <!-- <div class="glass-panel-card shadow-md rounded-box p-6 max-w-3xl mx-auto mt-6">
+    <h3 class="text-lg font-bold mb-3">📋 Instructions</h3>
+    <ul class="list-disc list-inside space-y-2 text-sm opacity-80">
+      <li><strong>Local Path:</strong> Absolute path to the file on your machine (e.g., <code>C:\reports\cell_report.xlsx</code>)</li>
+      <li><strong>Depot Path:</strong> Target Perforce depot path (e.g., <code>//wwcad/msip/projects/project1/reports/file.xlsx</code>)</li>
+      <li><strong>Description:</strong> Optional changelist description. If empty, auto-generated based on filename</li>
+      <li><strong>Workspace:</strong> Your P4 workspace must map the depot path for upload to succeed</li>
+      <li>Check browser console (F12) for detailed upload logs</li>
+    </ul>
+  </div> -->
+{% endcall %}
+
+<script src="{{ url_for('static', path='/file_picker.js') }}"></script>
+<script src="{{ url_for('static', path='/js/report_upload.js') }}"></script>
+{% endblock %}

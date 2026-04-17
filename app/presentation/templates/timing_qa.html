@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% from 'components/page_header.html' import page_header %}
+{% from 'components/page_container.html' import page_container %}
+{% from 'components/execution_output.html' import execution_output %}
+{% set is_process = page_id == 'timing-qa-process' %}
+{% set page_title = 'Timing QA (Process)' if is_process else 'Timing QA' %}
+{% set run_dir_placeholder = 'auto: release/process' if is_process else 'auto: quality/3_qa' %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+{% call page_container() %}
+  {{ page_header(page_title, 'Run & inspect timing QA summary (initial scaffold). Provide actual paths & flags to enhance.') }}
+  {# Context bar removed (project selection handled via navbar) #}
+  <div class="flex flex-col gap-4">
+    <!-- Collapsible Configuration Section -->
+    <div class="collapse collapse-arrow bg-base-100 border border-base-300 shadow-lg rounded-lg w-full max-w-[80vw] mx-auto">
+      <input type="checkbox" id="qaConfigCollapse" />
+      <div class="collapse-title text-base font-bold bg-primary text-primary-content rounded-t-lg">
+        ⚙️ Configuration
+      </div>
+      <div class="collapse-content bg-base-100 overflow-x-auto">
+        <div class="flex flex-col gap-6 pt-2">
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center justify-between"><h3 class="font-semibold">Inputs</h3><button id="defaultsBtn" class="btn btn-xs btn-outline">Defaults</button></div>
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <label class="form-control col-span-2"><span class="label-text">Data Release (aLibs)</span><input id="dataReleaseInput" class="input input-xs input-bordered" placeholder="auto: sis/release_final" /></label>
+              <label class="form-control col-span-2"><span class="label-text">Header File</span><input id="headerInput" class="input input-xs input-bordered" placeholder="auto: header_dummy.txt" /></label>
+              <label class="form-control col-span-2"><span class="label-text">Cell List File (optional)</span><input id="cellListInput" class="input input-xs input-bordered" placeholder="auto: release/process/dwc_cells.lst" /></label>
+              <label class="form-control col-span-2"><span class="label-text">Plan File</span><input id="planInput" class="input input-xs input-bordered" placeholder="auto constraint" /></label>
+              <label class="form-control col-span-2"><span class="label-text">Run Directory (where script executes)</span><input id="runDirInput" class="input input-xs input-bordered" placeholder="{{ run_dir_placeholder }}" /></label>
+              <label class="form-control col-span-2"><span class="label-text">OutDir</span><input id="outdirInput" class="input input-xs input-bordered" placeholder="auto: PostQA_libs" /></label>
+              <label class="form-control"><span class="label-text">Queue</span><input id="queueInput" class="input input-xs input-bordered" value="quick" /></label>
+              <label class="form-control"><span class="label-text">Project</span><input id="prjInput" class="input input-xs input-bordered" placeholder="project" /></label>
+              <label class="form-control"><span class="label-text">Release</span><input id="relInput" class="input input-xs input-bordered" placeholder="release" /></label>
+            </div>
+            <div class="divider my-1"></div>
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-xs font-semibold">Checks</span>
+                <button id="checkAllBtn" type="button" class="btn btn-xs btn-outline">Check All</button>
+                <button id="uncheckAllBtn" type="button" class="btn btn-xs btn-outline">Uncheck All</button>
+                <span class="text-[10px] opacity-60">(All enabled by default)</span>
+              </div>
+              <div id="checksContainerUnified" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 text-[11px]"></div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Collapsible QA Matrix Summary Section (moved outside Configuration) -->
+    <div class="collapse collapse-arrow bg-base-100 border border-base-300 shadow-lg rounded-lg w-full max-w-[80vw] mx-auto">
+      <input type="checkbox" id="qaMatrixCollapse" />
+      <div class="collapse-title text-base font-bold bg-primary text-primary-content rounded-t-lg">
+        📊 QA Matrix Summary
+      </div>
+      <div class="collapse-content bg-base-100 overflow-x-auto">
+        <div class="card bg-base-100 shadow p-4 flex flex-col gap-2 w-full">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="font-semibold">Matrix</h3>
+            <button id="loadMatrixBtn" class="btn btn-xs btn-outline" disabled>Load Matrix</button>
+          </div>
+          <span id="matrixMeta" class="text-[10px] opacity-70">Enter Run Directory and click Load Matrix</span>
+          <!-- Filter Controls -->
+          <div id="matrixFilters" class="hidden grid grid-cols-2 gap-2 p-2 bg-base-200 rounded border">
+            <!-- Cell Filter -->
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold">Filter Cells (Rows)</span>
+                <div class="flex gap-1">
+                  <button id="selectAllMatrixCellsBtn" type="button" class="btn btn-xs btn-ghost" title="Select All">✓ All</button>
+                  <button id="clearAllMatrixCellsBtn" type="button" class="btn btn-xs btn-ghost" title="Clear All">✗ Clear</button>
+                </div>
+              </div>
+              <div id="matrixCellFilters" class="max-h-32 overflow-auto border rounded p-1 bg-base-100">
+                <div class="text-center text-[10px] opacity-60 py-2">Load matrix first</div>
+              </div>
+            </div>
+            <!-- Check Item Filter -->
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold">Filter Check Items (Columns)</span>
+                <div class="flex gap-1">
+                  <button id="selectAllMatrixChecksBtn" type="button" class="btn btn-xs btn-ghost" title="Select All">✓ All</button>
+                  <button id="clearAllMatrixChecksBtn" type="button" class="btn btn-xs btn-ghost" title="Clear All">✗ Clear</button>
+                </div>
+              </div>
+              <div id="matrixCheckFilters" class="max-h-32 overflow-auto border rounded p-1 bg-base-100">
+                <div class="text-center text-[10px] opacity-60 py-2">Load matrix first</div>
+              </div>
+            </div>
+          </div>
+          <div class="overflow-auto max-h-[620px] border rounded">
+            <table class="table table-xs table-pin-rows table-pin-cols" id="matrixTable">
+              <thead class="bg-base-200"><tr><th class="bg-base-200">Cell Name</th></tr></thead>
+              <tbody><tr><td colspan="100" class="text-center italic opacity-60">No data loaded</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cell Selection (Always Visible) -->
+    <div>
+      <label class="form-control">
+        <span class="label-text flex items-center justify-between">
+          <span class="font-semibold">Cell Selection</span>
+          <div class="flex gap-1">
+            <button id="selectAllCellsBtn" type="button" class="btn btn-xs btn-outline" disabled>Select All</button>
+            <button id="clearCellsBtn" type="button" class="btn btn-xs btn-outline" disabled>Clear</button>
+          </div>
+        </span>
+        <div id="cellCheckboxContainer" class="border rounded p-2 bg-base-200 overflow-auto" style="max-height: 200px; min-height: 100px;">
+          <div class="text-center text-[11px] opacity-60 py-4">Enter Data Release path to auto-load cells</div>
+        </div>
+        <span id="cellSelectorStatus" class="text-[10px] opacity-60 mt-1">No cells loaded</span>
+      </label>
+    </div>
+
+    <!-- Run QA Button (Always Visible) -->
+    <div class="flex gap-2 items-center">
+      <button id="runBtn" class="btn btn-sm btn-primary" disabled>Run QA</button>
+      <div id="qaStatusNote" class="text-[10px] opacity-70">Fill required fields to enable Run.</div>
+    </div>
+  </div>
+  
+  {# Execution Output Modal #}
+  <dialog id="executionOutputModal" class="modal">
+    <form method="dialog" class="modal-box w-11/12 max-w-5xl">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+  <h3 class="font-bold text-lg mb-2">Execution Output</h3>
+  {# Use default container id 'executionOutputGroup' by omitting argument #}
+  {{ execution_output() }}
+    </form>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+  </dialog>
+</div>
+
+{# Shared streaming scripts (WebSocket + Factory) must load before page-specific logic #}
+<script src="{{ url_for('static', path='/js/shared/websocket_output_stream.js') }}"></script>
+<script src="{{ url_for('static', path='/js/shared/execution_stream_factory.js') }}"></script>
+<script src="{{ url_for('static', path='/js/timing_qa.js') }}"></script>
+{% endcall %}
+{% endblock %}

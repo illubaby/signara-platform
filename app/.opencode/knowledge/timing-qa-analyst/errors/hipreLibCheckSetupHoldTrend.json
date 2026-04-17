@@ -1,0 +1,47 @@
+[
+  {
+    "QA Main Items": "hipreLibCheckSetupHoldTrend",
+    "QA Subs Items": "NA",
+    "Descriptions": "Check trend of arc setup/hold with  if no arcs violation greater than the threshold of 10ps",
+    "Sheet": "hipreLibCheckSetupHoldTrend",
+    "Status": "PASSED",
+    "Detail error": "No setup/hold constraint tables monotonicity violations greater than the threshold of 10ps were found.",
+    "Analysis": "The check PASSED"
+  },
+  {
+    "QA Main Items": "hipreLibCheckSetupHoldTrend",
+    "QA Subs Items": "NA",
+    "Descriptions": "Check trend of arc setup/hold with  if no arcs violation greater than the threshold of 10ps",
+    "Sheet": "hipreLibCheckSetupHoldTrend",
+    "Status": "FAILED",
+    "Detail error": "The default_operating_conditions value, 'tt0p75vn40c', is either not defined or it is defined after this line. (LBDB-74)",
+    "Analysis": "Wrong default_operating_conditions"
+  },
+  {
+    "QA Main Items": "hipreLibCheckSetupHoldTrend",
+    "QA Subs Items": "NA",
+    "Descriptions": "Check trend of arc setup/hold with  if no arcs violation greater than the threshold of 10ps",
+    "Sheet": "hipreLibCheckSetupHoldTrend",
+    "Status": "FAILED",
+    "Detail error": "Error: Line 138, Cell 'dwc_ucie3phy_clkgt1_s', pg_pin 'VDD', There is no 'VDDREG' voltage_map defined for 'VDDREG' voltage_name. (LBDB-848)",
+    "Analysis": "Missing voltage map for exiting voltage domain"
+  },
+  {
+    "QA Main Items": "hipreLibCheckSetupHoldTrend",
+    "QA Subs Items": "NA",
+    "Descriptions": "Check trend of arc setup/hold with  if no arcs violation greater than the threshold of 10ps",
+    "Sheet": "hipreLibCheckSetupHoldTrend",
+    "Status": "FAILED",
+    "Detail error": "Error: Line 138, Cell 'dwc_ucie3phy_clkgt1_s', pg_pin 'VDD', An invalid attribute 'voltage_name' is found. (LBDB-27)",
+    "Analysis": "An invalid attribute 'voltage_name' is found"
+  },
+  {
+    "QA Main Items": "hipreLibCheckSetupHoldTrend",
+    "QA Subs Items": "NA",
+    "Descriptions": "Check trend of arc setup/hold with  if no arcs violation greater than the threshold of 10ps",
+    "Sheet": "hipreLibCheckSetupHoldTrend",
+    "Status": "FAILED",
+    "Detail error": "Error: Line 177, Cell 'dwc_ucie3phy_clkgt1_s', pin 'EN', Cannot find the 'CK1' pin in the 'dwc_ucie3phy_clkgt1_s' cell. (LIBG-5)",
+    "Analysis": "Cannot find the pin in the target cell"
+  }
+]

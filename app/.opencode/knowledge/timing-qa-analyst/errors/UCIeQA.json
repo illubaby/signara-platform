@@ -1,0 +1,9 @@
+{
+  "QA Main Items": "UCIeQA",
+  "QA Subs Items": "NA",
+  "Descriptions": "Check if the clock attribute is missing in .lib, lef or csv",
+  "Sheet": "UCIeQA",
+  "Status": "FAILED",
+  "Detail error": "-E- DIRTY! (CSV:YES LEF:YES LIB:NO)  ",
+  "Analysis": "LIB missing clock attribute"
+}

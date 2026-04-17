@@ -1,0 +1,1 @@
+"""Package Compare domain layer."""

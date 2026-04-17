@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% from 'components/execution_output.html' import execution_output %}
+{% from 'components/file_editor.html' import file_editor %}
+{% from 'components/page_header.html' import page_header %}
+{% from 'components/page_container.html' import page_container %}
+{% block title %}Timing QC{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/timing_qc.css') }}">
+{% endblock %}
+
+{% block content %}
+{% call page_container() %}
+  {{ page_header('Timing QC', 'Delay / Constraint table exploration (foundation port of legacy QC). Further feature parity (status coloring, factorX calc, rerun orchestration) will follow.') }}
+
+  <div class="flex flex-col gap-3">
+    <!-- Control Panel - Maximum Width -->
+    <div class="w-full max-w-[98%] mx-auto">
+      <div class="card bg-base-100 shadow p-6 flex flex-col gap-3 glass-panel-card" id="cellPanel">
+        <div class="flex items-center justify-between"><h3 class="font-semibold text-lg">Work Form</h3><button id="refreshDefaultsBtn" class="btn btn-sm btn-outline">Default</button></div>
+        <div class="grid grid-cols-2 gap-4">
+          <label class="form-control">
+            <span class="label-text font-semibold">Select Cell</span>
+            <div class="flex gap-2">
+              <select id="cellSelect" class="select select-bordered select-sm w-full"></select>
+              <button id="openReportBtn" class="btn btn-sm btn-outline" disabled title="Open TMQC Report (.xlsx)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Report
+              </button>
+            </div>
+          </label>
+          <label class="form-control">
+            <span class="label-text font-semibold">Phase</span>
+            <div class="relative">
+              <input id="phaseInput" type="text" class="input input-sm input-bordered font-mono text-xs w-full" value="specs clear setup" placeholder="Enter or select phase">
+              <select id="phaseDropdown" class="select absolute right-0 top-0 h-full w-8 opacity-0 cursor-pointer" onchange="document.getElementById('phaseInput').value = this.value; this.selectedIndex = 0;">
+                <option value="" selected></option>
+                <option value="specs clear setup">specs clear setup</option>
+                <option value="runningman">runningman</option>
+                <option value="specs report">specs report</option>                
+                <option value="specs setup sim testbench:important">specs setup sim testbench:important</option>
+                <option value="specs setup sim testbench:normal">specs setup sim testbench:normal</option>
+              </select>
+              <svg class="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+          </label>
+        </div>
+        <div class="flex flex-col gap-2">
+            <h4 class="text-sm font-semibold text-error">Paths</h4>
+            <label class="form-control"><span class="label-text font-semibold">QC Plan</span><input id="qcplanInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="/path/uciephy_constraint.xlsx"></label>
+            <label class="form-control"><span class="label-text font-semibold">Netlist</span><input id="netlistInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="/path/netlist"></label>
+            <label class="form-control"><span class="label-text font-semibold">Data</span><input id="dataInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="/path/data"></label>
+            
+            
+        
+            <label class="form-control"><span class="label-text font-semibold">Debug Path</span><input id="debugInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="(auto create empty)"></label>
+            <label class="form-control"><span class="label-text font-semibold">Common Source</span><input id="commonSourceInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="/path/common_source"></label>
+            
+          </div>
+        <h4 class="text-sm font-semibold text-error">Options (Expand)</h4>
+        <div class="divider my-1 cursor-pointer hover:bg-base-200" id="detailsToggle">
+          <span class="flex items-center gap-2">
+            <img id="detailsChevron" class="w-10 h-10 transition-transform" src="https://www.svgrepo.com/show/530381/setting.svg" alt="dropdown">
+          </span>
+        </div>
+        <div id="detailsContent" class="hidden flex flex-col gap-3">
+          
+          
+          <div class="flex flex-col gap-2">
+            <label class="form-control">
+              <span class="label-text font-semibold">Ref Data</span>
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="refDataCheckbox" class="checkbox checkbox-sm">
+                <input id="refDataInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="/path/refdata.csv" disabled>
+              </div>
+            </label>
+            <!-- Datastore Section -->
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <span class="label-text font-semibold">Datastore</span>
+                <button id="addDatastoreBtn" type="button" class="btn btn-xs btn-ghost hover:btn-success" title="Add another datastore">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                  </svg>
+                  Add
+                </button>
+              </div>
+              <div id="datastoreContainer" class="flex flex-col gap-2">
+                <!-- Initial datastore input -->
+                <div class="flex gap-2 datastore-entry">
+                  <input type="text" class="input input-sm input-bordered font-mono text-xs w-full flex-1 datastore-input" placeholder="/path/datastore" data-index="0">
+                  <button type="button" class="btn btn-sm btn-ghost hover:btn-error remove-datastore-btn" title="Remove this datastore">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-4 text-sm mb-2">
+              <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="updateOpt" class="checkbox checkbox-sm"><span>Update</span></label>
+              <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="adjustmentOpt" class="checkbox checkbox-sm" checked><span>Adjust</span></label>
+              <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="noWFOpt" class="checkbox checkbox-sm" checked><span>noWF</span></label>
+              <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="xtalkRelNetOpt" class="checkbox checkbox-sm"><span>xtalkRelNet</span></label>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <label class="form-control"><span class="label-text font-semibold">Index</span><input id="indexInput" class="input input-sm input-bordered font-mono text-xs w-full" value="0 2 3"></label>
+              <label class="form-control"><span class="label-text font-semibold">Verbose</span><input id="verboseInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="level"></label>
+              <label class="form-control"><span class="label-text font-semibold">Hierarchy</span><input id="hierarchyInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="hierarchy value"></label>
+              <label class="form-control"><span class="label-text font-semibold">Include</span><input id="includeInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="/abs/include"></label>
+              <label class="form-control"><span class="label-text font-semibold">xtalk</span><input id="xtalkInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="value"></label>
+              <label class="form-control"><span class="label-text font-semibold">Primesim</span><input id="primesimInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="ver"></label>
+              <label class="form-control"><span class="label-text font-semibold">HSPICE</span><input id="hspiceInput" class="input input-sm input-bordered font-mono text-xs w-full" placeholder="ver"></label>
+              <div class="col-span-3">
+                <div class="text-sm font-semibold">TMQC_internal_node.map</div>
+                <input type="hidden" id="tmqcInternalNodeMapPath" value="">
+                {{ file_editor('tmqcInternalNodeMapPath') }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3 flex flex-col gap-2">
+          <div class="flex gap-2 justify-center">
+            <button id="runScriptBtn" class="btn">Run</button>
+          </div>
+          <div id="statusNote" class="text-sm opacity-70 text-center mt-2">Select a cell to begin.</div>
+          
+          <!-- Modular Execution Output Component -->
+          {{ execution_output() }}
+        </div>
+      </div>
+    </div>
+    
+    <!-- QC Results - Maximum Width -->
+    <div class="w-full max-w-[98%] mx-auto">
+      <div class="flex items-center mb-2 gap-2">
+        <h3 class="font-semibold text-lg">QC Results</h3>
+        <!-- Explorer feature disabled -->
+        <!-- <button id="openExplorerBtn" class="btn btn-sm btn-primary" disabled title="Open Explorer in new tab for selected testbench">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
+          Open Explorer
+        </button> -->
+        <button id="refreshTestbenchesBtn" class="btn btn-ghost btn-md ml-auto" title="Rescan testbench directories"><span id="reloadIcon">⟳</span> Reload</button>
+      </div>
+      <!-- Tabs for Important/Non-Important with beautiful styling -->
+      <div role="tablist" class="tabs tabs-bordered mb-4">
+        <a role="tab" class="tab tab-active" id="importantTab" data-tab="important">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+          </svg>
+          <span class="font-semibold">Important</span>
+          <span class="badge badge-sm badge-ghost" id="importantCount">0</span>
+        </a>
+        <a role="tab" class="tab" id="nonImportantTab" data-tab="non-important">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span class="font-semibold">Others</span>
+          <span class="badge badge-sm badge-ghost" id="nonImportantCount">0</span>
+        </a>
+        <a role="tab" class="tab" id="equalizerTab" data-tab="equalizer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <span class="font-semibold">Equalizer</span>
+        </a>
+        <a role="tab" class="tab" id="postEqualizerTab" data-tab="post-equalizer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 7h14M5 17h14"></path>
+          </svg>
+          <span class="font-semibold">Post-Equalizer</span>
+        </a>
+      </div>
+      <!-- Loading Spinner -->
+      <div id="testbenchLoadingSpinner" class="hidden flex items-center justify-center p-8 bg-base-100 border rounded shadow">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+        <span class="ml-3 text-lg">Loading testbench data...</span>
+      </div>
+      
+      <!-- Testbench Table (Important/Others tabs) -->
+      <div id="qcTableWrap" class="overflow-auto border rounded bg-base-100 shadow">
+        <table class="table table-sm" id="qcTable">
+          <thead class="sticky top-0 bg-base-200"><tr><th>#</th><th>Testbench</th><th>PVT Status</th><th>POCV File</th><th>Actions</th></tr></thead>
+          <tbody><tr><td colspan="5" class="text-center italic opacity-60">No data</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Equalizer Table -->
+      <div id="equalizerTableWrap" class="hidden overflow-auto border rounded bg-base-100 shadow">
+        <div class="p-4 flex items-center justify-between bg-base-200">
+          <div class="text-sm opacity-70">
+            <span id="equalizerStatus">Select a cell to load EqualizeMap.csv</span>
+          </div>
+          <div class="flex gap-2">
+            <button id="equalizerRunBtn" class="btn btn-sm btn-success" title="Run 3.RunallEqual.csh">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Run
+            </button>
+            <button id="equalizerSaveBtn" class="btn btn-sm btn-primary" title="Save changes" disabled>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+              </svg>
+              Save
+            </button>
+          </div>
+        </div>
+        <table class="table table-xs" id="equalizerTable">
+          <thead class="sticky top-0 bg-base-200">
+            <tr>
+              <th>#</th>
+              <th>Action</th>
+              <th>Type</th>
+              <th>Pin</th>
+              <th>Related Pin</th>
+              <th>When</th>
+              <th>FF-Max/Min</th>
+              <th>TT-Max/Min</th>
+              <th>SS-Max/Min</th>
+              <th>SF-Max/Min</th>
+              <th>Status</th>
+              <th>Extra Margin</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="12" class="text-center italic opacity-60">No data</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      {% include 'components/timing_qc/post_equalizer_table.html' %}
+      
+      <div class="text-sm opacity-70 mt-2 flex flex-col gap-1" id="testbenchLegend">
+        <div class="flex gap-3">
+          <span class="font-semibold">PVT Status:</span>
+          <span><span class="badge badge-success badge-sm mr-1"></span>Passed</span>
+          <span><span class="badge badge-error badge-sm mr-1"></span>Fail</span>
+          <span><span class="badge badge-warning badge-sm mr-1"></span>In Progress</span>
+          <span><span class="badge badge-ghost badge-sm mr-1"></span>Not Started</span>
+        </div>
+        <div class="flex gap-3">
+          <span class="font-semibold">POCV File:</span>
+          <span><span class="badge badge-success badge-sm mr-1"></span>Exist</span>
+          <span><span class="badge badge-warning badge-sm mr-1"></span>Empty</span>
+          <span><span class="badge badge-error badge-sm mr-1"></span>Missing</span>
+          <span class="ml-2 opacity-60">(get_pocv_pbsa_xtalk.txt status in each PVT folder)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared WebSocket Streaming Modules (Reusable) -->
+  <script src="{{ url_for('static', path='/js/shared/websocket_output_stream.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/shared/execution_stream_factory.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/shared/distributed_task_modal.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/shared/file_editor.js') }}"></script>
+  
+  <!-- Timing QC JavaScript Modules -->
+  <script src="{{ url_for('static', path='/js/timing_qc/shared_http.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/state.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/api_client.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/table_renderer.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/script_runner.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/task_queue.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/pvt_runner.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/report_opener.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/datastore_handler.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/equalizer.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/post_equalizer.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/event_handlers.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/timing_qc/bootstrap.js') }}"></script>
+{% endcall %}
+{% endblock %}
